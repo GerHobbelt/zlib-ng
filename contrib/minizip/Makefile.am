@@ -24,7 +24,9 @@ minizip_include_HEADERS = \
 	ioapi.h \
 	mztools.h \
 	unzip.h \
-	zip.h
+	zip.h \
+	platform_fixes.h
+
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = minizip.pc

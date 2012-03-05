@@ -1,8 +1,10 @@
+
+#include "zlib.h"
+
+/* [i_a] reorder #includes */
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
-
-#include "zlib.h"
 
 
 void MyDoMinus64(LARGE_INTEGER *R,LARGE_INTEGER A,LARGE_INTEGER B)

@@ -21,6 +21,7 @@
 
 */
 
+#include "platform_fixes.h" /* [i_a] */
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -21,6 +21,13 @@
 #ifndef _ZLIBIOAPI64_H
 #define _ZLIBIOAPI64_H
 
+
+#include "win32_fixes.h" /* [i_a] */
+
+/*
+[i_a] moved this chunk to win32_fixes.h
+*/
+#if 0
 #if (!defined(_WIN32)) && (!defined(WIN32)) && (!defined(__APPLE__))
 
   // Linux needs this to support file operation on files larger then 4+GB
@@ -38,7 +45,7 @@
         #ifndef _FILE_OFFSET_BIT
                 #define _FILE_OFFSET_BIT 64
         #endif
-
+#endif
 #endif
 
 #include <stdio.h>

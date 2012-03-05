@@ -306,8 +306,7 @@ voidpf ZLIB_INTERNAL zcalloc (
     unsigned size)
 {
     if (opaque) items += size - size; /* make compiler happy */
-    return sizeof(uInt) > 2 ? (voidpf)malloc(items * size) :
-                              (voidpf)calloc(items, size);
+    return (voidpf)calloc(items, size); /* [i_a] */
 }
 
 void ZLIB_INTERNAL zcfree (
