@@ -14,7 +14,10 @@
 *.sdf
 *.ncb
 *.bak
-*.user
+*.user    
+*.la
+.deps
+.libs
 
 *.gcda
 *.gcno
