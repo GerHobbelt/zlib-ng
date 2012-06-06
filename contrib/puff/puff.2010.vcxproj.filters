@@ -18,6 +18,9 @@
     <ClCompile Include="puff.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="pufftest.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\zconf.h">

@@ -22,10 +22,10 @@
 #define _ZLIBIOAPI64_H
 
 
-#include "win32_fixes.h" /* [i_a] */
+#include "platform_fixes.h" /* [i_a] */
 
 /*
-[i_a] moved this chunk to win32_fixes.h
+[i_a] moved this chunk to platform_fixes.h
 */
 #if 0
 #if (!defined(_WIN32)) && (!defined(WIN32)) && (!defined(__APPLE__))

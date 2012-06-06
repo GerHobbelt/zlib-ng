@@ -20,10 +20,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="zconf.h">
+    <ClInclude Include="..\zconf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="zlib.h">
+    <ClInclude Include="..\zlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -33,7 +33,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="zlib.ico">
+    <None Include="..\zlib.ico">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

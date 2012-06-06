@@ -17,6 +17,8 @@
 *.user
 *.la
 *.suo
+*.sdf
+*.opensdf
 .deps
 .libs
 
@@ -32,4 +34,8 @@
 /minigzip64
 /minigzipsh
 /zlib.pc
+
 obj/
+bin/
+ipch/
+
