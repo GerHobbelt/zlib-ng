@@ -164,15 +164,9 @@ local void make_crc_table(void)
 }
 
 #ifdef MAKECRCH
-<<<<<<< HEAD
 local void write_table(
     FILE *out,
-    const crc_table_t FAR *table)
-=======
-local void write_table(out, table)
-    FILE *out;
-    const z_crc_t FAR *table;
->>>>>>> remotes/mark_adler_original/develop
+    const z_crc_t FAR *table)
 {
     int n;
 
@@ -193,11 +187,7 @@ local void write_table(out, table)
 /* =========================================================================
  * This function can be used by asm versions of crc32()
  */
-<<<<<<< HEAD
-const unsigned long FAR * ZEXPORT get_crc_table(void)
-=======
-const z_crc_t FAR * ZEXPORT get_crc_table()
->>>>>>> remotes/mark_adler_original/develop
+const z_crc_t FAR * ZEXPORT get_crc_table(void)
 {
 #ifdef DYNAMIC_CRC_TABLE
     if (crc_table_empty)
