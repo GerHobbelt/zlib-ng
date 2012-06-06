@@ -14,8 +14,9 @@
 *.sdf
 *.ncb
 *.bak
-*.user    
+*.user
 *.la
+*.suo
 .deps
 .libs
 
@@ -31,3 +32,4 @@
 /minigzip64
 /minigzipsh
 /zlib.pc
+obj/

@@ -19,7 +19,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libzlib_dll", "libzlib_dll.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libzlib_lib", "libzlib_lib.2010.vcxproj", "{9DE41B37-B0C0-4FB2-960B-3FC6544394C3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "minigzip", "minigzip.2010.vcxproj", "{99FCB505-163C-41B3-8958-AD3B55CB6CF3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "minigzip", "test\minigzip.2010.vcxproj", "{99FCB505-163C-41B3-8958-AD3B55CB6CF3}"
 	ProjectSection(ProjectDependencies) = postProject
 		{74FF2F85-52D7-48A2-B76F-4DACF9736E3C} = {74FF2F85-52D7-48A2-B76F-4DACF9736E3C}
 	EndProjectSection
