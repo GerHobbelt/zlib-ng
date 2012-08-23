@@ -26,7 +26,7 @@
     } \
 }
 
-const char hello[] = "hello, hello!";
+z_const char hello[] = "hello, hello!";
 /* "hello world" would be more standard, but the repeated "hello"
  * stresses the compression code better, sorry...
  */
@@ -212,7 +212,7 @@ void test_deflate(
     err = deflateInit(&c_stream, Z_DEFAULT_COMPRESSION);
     CHECK_ERR(err, "deflateInit");
 
-    c_stream.next_in  = (Bytef*)hello;
+    c_stream.next_in  = (z_const unsigned char *)hello;
     c_stream.next_out = compr;
 
     while (c_stream.total_in != len && c_stream.total_out < comprLen) {
@@ -393,7 +393,7 @@ void test_flush(
     err = deflateInit(&c_stream, Z_DEFAULT_COMPRESSION);
     CHECK_ERR(err, "deflateInit");
 
-    c_stream.next_in  = (Bytef*)hello;
+    c_stream.next_in  = (z_const unsigned char *)hello;
     c_stream.next_out = compr;
     c_stream.avail_in = 3;
     c_stream.avail_out = (uInt)*comprLen;
@@ -484,7 +484,7 @@ void test_dict_deflate(
     c_stream.next_out = compr;
     c_stream.avail_out = (uInt)comprLen;
 
-    c_stream.next_in = (Bytef*)hello;
+    c_stream.next_in = (z_const unsigned char *)hello;
     c_stream.avail_in = (uInt)strlen(hello)+1;
 
     err = deflate(&c_stream, Z_FINISH);

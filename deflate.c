@@ -304,7 +304,7 @@ int ZEXPORT deflateInit2_(
     if (s->window == Z_NULL || s->prev == Z_NULL || s->head == Z_NULL ||
         s->pending_buf == Z_NULL) {
         s->status = FINISH_STATE;
-        strm->msg = (char*)ERR_MSG(Z_MEM_ERROR);
+        strm->msg = ERR_MSG(Z_MEM_ERROR);
         deflateEnd (strm);
         return Z_MEM_ERROR;
     }
@@ -328,7 +328,7 @@ int ZEXPORT deflateSetDictionary (
     uInt str, n;
     int wrap;
     unsigned avail;
-    unsigned char *next;
+    z_const unsigned char *next;
 
     if (strm == Z_NULL || strm->state == Z_NULL || dictionary == Z_NULL)
         return Z_STREAM_ERROR;
@@ -358,7 +358,7 @@ int ZEXPORT deflateSetDictionary (
     avail = strm->avail_in;
     next = strm->next_in;
     strm->avail_in = dictLength;
-    strm->next_in = (Bytef *)dictionary;
+    strm->next_in = (z_const Bytef *)dictionary;
     fill_window(s);
     while (s->lookahead >= MIN_MATCH) {
         str = s->strstart;
