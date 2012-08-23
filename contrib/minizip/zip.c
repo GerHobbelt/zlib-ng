@@ -158,7 +158,7 @@ typedef struct
     ZPOS64_T totalUncompressedData;
 #ifndef NOCRYPT
     unsigned long keys[3];     /* keys defining the pseudo-random sequence */
-    const unsigned long* pcrc_32_tab;
+    const z_crc_t* pcrc_32_tab;
     int crypt_header_size;
 #endif
 } curfile64_info;
@@ -187,7 +187,7 @@ typedef struct
 #include "crypt.h"
 #endif
 
-local linkedlist_datablock_internal* allocate_new_datablock()
+local linkedlist_datablock_internal* allocate_new_datablock(void)
 {
     linkedlist_datablock_internal* ldi;
     ldi = (linkedlist_datablock_internal*)
