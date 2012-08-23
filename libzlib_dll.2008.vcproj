@@ -1023,7 +1023,7 @@
 				>
 			</File>
 			<File
-				RelativePath="zlib1.rc"
+				RelativePath=".\win32\zlib1.rc"
 				>
 			</File>
 		</Filter>

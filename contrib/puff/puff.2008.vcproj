@@ -785,6 +785,10 @@
 				RelativePath="puff.c"
 				>
 			</File>
+			<File
+				RelativePath=".\pufftest.c"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

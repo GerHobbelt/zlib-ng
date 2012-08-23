@@ -610,6 +610,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				ExecutionBucket="7"
 				Optimization="3"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
@@ -770,6 +771,14 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{6895750E-3DF8-4C1C-AC14-DB70859F5FEB}"
+			RelativePathToProject=".\contrib\minizip\minizlib.2008.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{74FF2F85-52D7-48A2-B76F-4DACF9736E3C}"
+			RelativePathToProject=".\libzlib_dll.2008.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter

@@ -57,6 +57,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories=".."
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_DEBUG;WIN32;_CONSOLE;ZLIB_DLL"
 				StringPooling="true"
 				MinimalRebuild="false"
@@ -153,6 +154,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories=".."
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_DEBUG;WIN32;_CONSOLE;ZLIB_DLL"
 				StringPooling="true"
 				MinimalRebuild="false"
@@ -349,6 +351,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories=".."
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_DEBUG;WIN32;_CONSOLE;ZLIB_DLL"
 				StringPooling="true"
 				MinimalRebuild="false"
@@ -447,6 +450,7 @@
 				OmitFramePointers="false"
 				EnableFiberSafeOptimizations="true"
 				WholeProgramOptimization="true"
+				AdditionalIncludeDirectories=".."
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;NDEBUG;WIN32;_CONSOLE;ZLIB_DLL"
 				StringPooling="true"
 				ExceptionHandling="2"
@@ -544,6 +548,7 @@
 				OmitFramePointers="false"
 				EnableFiberSafeOptimizations="true"
 				WholeProgramOptimization="true"
+				AdditionalIncludeDirectories=".."
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;NDEBUG;WIN32;_CONSOLE;ZLIB_DLL"
 				StringPooling="true"
 				ExceptionHandling="2"
@@ -741,6 +746,7 @@
 				OmitFramePointers="false"
 				EnableFiberSafeOptimizations="true"
 				WholeProgramOptimization="true"
+				AdditionalIncludeDirectories=".."
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;NDEBUG;WIN32;_CONSOLE;ZLIB_DLL"
 				StringPooling="true"
 				ExceptionHandling="2"
@@ -799,6 +805,10 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{74FF2F85-52D7-48A2-B76F-4DACF9736E3C}"
+			RelativePathToProject=".\libzlib_dll.2008.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
