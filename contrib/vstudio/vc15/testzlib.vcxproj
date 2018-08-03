@@ -201,6 +201,7 @@
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>..\..\masmx86\match686.obj;..\..\masmx86\inffas32.obj;%(AdditionalDependencies)</AdditionalDependencies>
@@ -232,6 +233,7 @@
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)testzlib.exe</OutputFile>
@@ -262,6 +264,7 @@
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>..\..\masmx86\match686.obj;..\..\masmx86\inffas32.obj;%(AdditionalDependencies)</AdditionalDependencies>
@@ -285,6 +288,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>..\..\masmx64\gvmat64.obj;..\..\masmx64\inffasx64.obj;%(AdditionalDependencies)</AdditionalDependencies>
@@ -308,6 +312,7 @@
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)testzlib.exe</OutputFile>
@@ -325,6 +330,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
@@ -350,6 +356,7 @@
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)testzlib.exe</OutputFile>
@@ -368,6 +375,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>..\..\masmx64\gvmat64.obj;..\..\masmx64\inffasx64.obj;%(AdditionalDependencies)</AdditionalDependencies>
@@ -393,6 +401,7 @@
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)testzlib.exe</OutputFile>
