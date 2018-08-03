@@ -25,6 +25,7 @@ nuget
          Breaking changes:
          Bug fixes:
          Misc:
+            - Updated toolset to v141 for Visual Studio 2017
          ";
       copyright: @"Copyright (c) 2018.";
       tags: { zlib, CoApp, compression, vs2017, native };
