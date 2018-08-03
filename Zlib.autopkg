@@ -2,7 +2,7 @@ configurations
 {
    Toolset {
       key : "PlatformToolset";
-      choices: { v140, v141 };
+      choices: { v141 };
    };
 }
 
@@ -27,35 +27,19 @@ nuget
          Misc:
          ";
       copyright: @"Copyright (c) 2018.";
-      tags: { zlib, CoApp, compression, vs2015, vs2017, native };
+      tags: { zlib, CoApp, compression, vs2017, native };
    };
 
    files
    {
       nestedInclude: { #destination=${d_include}Zlib; *.h };
       libpdb:        { #destination=${d_lib}; };
-      ("Win32", "v140", "Debug,Release") =>
-      {
-         [${0}, ${1}, ${2}]
-         {
-            lib:    { contrib\vstudio\vc14\x86\ZlibStat${2}\*.lib; }
-            libpdb: { contrib\vstudio\vc14\x86\ZlibStat${2}\*.pdb; }
-         };
-      };
       ("Win32", "v141", "Debug,Release") =>
       {
          [${0}, ${1}, ${2}]
          {
             lib:    { contrib\vstudio\vc15\x86\ZlibStat${2}\*.lib; }
             libpdb: { contrib\vstudio\vc15\x86\ZlibStat${2}\*.pdb; }
-         };
-      };
-      ("x64", "v140", "Debug,Release") =>
-      {
-         [${0}, ${1}, ${2}]
-         {
-            lib:    { contrib\vstudio\vc14\${0}\ZlibStat${2}\*.lib; }
-            libpdb: { contrib\vstudio\vc14\${0}\ZlibStat${2}\*.pdb; }
          };
       };
       ("x64", "v141", "Debug,Release") =>
