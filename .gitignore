@@ -25,6 +25,5 @@
 
 .DS_Store
 
-zconf.h
 ztest*.exe
 ztest*.c
