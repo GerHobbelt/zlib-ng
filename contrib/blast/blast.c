@@ -442,11 +442,28 @@ local int outf(void *how, unsigned char *buf, unsigned len)
     return fwrite(buf, 1, len, (FILE *)how) != len;
 }
 
+#ifdef _WIN32
+#include <fcntl.h>
+#endif
+
 /* Decompress a PKWare Compression Library stream from stdin to stdout */
 int main(void)
 {
     int ret;
     unsigned left;
+
+#ifdef _WIN32
+    int result = _setmode(_fileno(stdin), _O_BINARY);
+    if (result == -1) {
+        perror("Cannot set mode");
+        return -4;
+    }
+    result = _setmode(_fileno(stdout), _O_BINARY);
+    if (result == -1) {
+        perror("Cannot set mode");
+        return -4;
+    }
+#endif
 
     /* decompress to stdout */
     left = 0;
