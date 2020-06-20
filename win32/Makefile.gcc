@@ -51,13 +51,13 @@ ASFLAGS = $(LOC) -Wall
 LD = $(CC)
 LDFLAGS = $(LOC)
 
-AR = $(PREFIX)ar
+AR = ar
 ARFLAGS = rcs
 
-RC = $(PREFIX)windres
+RC = windres
 RCFLAGS = --define GCC_WINDRES
 
-STRIP = $(PREFIX)strip
+STRIP = strip
 
 CP = cp -fp
 # If GNU install is available, replace $(CP) with install.
