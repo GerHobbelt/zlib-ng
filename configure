@@ -98,7 +98,7 @@ leave()
   if test "$*" != "0"; then
     echo "** $0 aborting." | tee -a configure.log
   fi
-  #rm -f $test.[co] $test $test$shared_ext $test.gcno ./--version
+  rm -f $test.[co] $test $test$shared_ext $test.gcno ./--version
   echo -------------------- >> configure.log
   echo >> configure.log
   echo >> configure.log
@@ -140,7 +140,7 @@ case "$1" in
     *)
       echo "unknown option: $1" | tee -a configure.log
       echo "$0 --help for help" | tee -a configure.log
-      #leave 1;;
+      leave 1;;
     esac
 done
 
@@ -216,9 +216,9 @@ if test "$gcc" -eq 1 && ($cc -c $test.c) >> configure.log 2>&1; then
         EXE='.exe' ;;
   MINGW* | mingw*)
 # temporary bypass
-        #rm -f $test.[co] $test $test$shared_ext
+        rm -f $test.[co] $test $test$shared_ext
         echo "Please use win32/Makefile.gcc instead." | tee -a configure.log
-        #leave 1
+        leave 1
         LDSHARED=${LDSHARED-"$cc -shared"}
         LDSHAREDLIBC=""
         EXE='.exe' ;;
@@ -396,7 +396,7 @@ if try $CC -c $CFLAGS $test.c; then
   :
 else
   echo "Compiler error reporting is too harsh for $0 (perhaps remove -Werror)." | tee -a configure.log
-  #leave 1
+  leave 1
 fi
 
 echo >> configure.log
