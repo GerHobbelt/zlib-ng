@@ -29,6 +29,10 @@
 #  include <stdlib.h>
 #endif
 
+#if defined(_MSC_VER)
+#include <crtdbg.h>
+#endif
+
 #ifdef Z_SOLO
    typedef long ptrdiff_t;  /* guess -- will be caught if guess is wrong */
 #endif
