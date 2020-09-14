@@ -40,6 +40,7 @@ jobs:
           Ubuntu Clang Debug,
           Ubuntu Clang MSAN,
           Windows MSVC Win32,
+          Windows MSVC Win32 Compat,
           Windows MSVC Win64,
           Windows MSVC ARM No Test,
           Windows MSVC ARM64 No Test,
@@ -281,6 +282,11 @@ jobs:
             os: windows-latest
             compiler: cl
             cmake-args: -A Win32
+
+          - name: Windows MSVC Win32 Compat
+            os: windows-latest
+            compiler: cl
+            cmake-args: -A Win32 -DZLIB_COMPAT=ON -DWITH_NEW_STRATEGIES=ON -DWITH_OPTIM=ON
 
           - name: Windows MSVC Win64
             os: windows-latest
