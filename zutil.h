@@ -34,7 +34,9 @@
 #endif
 
 #ifdef Z_SOLO
-   typedef long ptrdiff_t;  /* guess -- will be caught if guess is wrong */
+#if !defined(_MSC_VER)
+	typedef long ptrdiff_t;  /* guess -- will be caught if guess is wrong */
+#endif
 #endif
 
 #ifndef local
