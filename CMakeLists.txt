@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.1.2)
 
 project(zlib VERSION 1.2.11.1 LANGUAGES C)
 
+set(VERSION "1.2.11.1")
 
 option(BUILD_SHARED_LIBS "Enable to build a shared library(DLL) instead a static one." ON)
 option(BUILD_EXAMPLES "Enable to build the examples too." OFF)
