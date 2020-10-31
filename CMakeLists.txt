@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.4.4)
+cmake_minimum_required(VERSION 3.8.0)
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS ON)
 
 project(zlib C)
@@ -82,29 +82,29 @@ set(ZLIB_PC ${CMAKE_CURRENT_BINARY_DIR}/zlib.pc)
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/zlib.pc.cmakein
 		${ZLIB_PC} @ONLY)
 configure_file(	${CMAKE_CURRENT_SOURCE_DIR}/zconf.h.cmakein
-		${CMAKE_CURRENT_BINARY_DIR}/zconf.h @ONLY)
-include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
+		${CMAKE_CURRENT_SOURCE_DIR}/zconf.h @ONLY)
+# include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
 
 
 #============================================================================
 # zlib
 #============================================================================
 
-set(ZLIB_PUBLIC_HDRS
-    ${CMAKE_CURRENT_BINARY_DIR}/zconf.h
-    zlib.h
-)
-set(ZLIB_PRIVATE_HDRS
-    crc32.h
-    deflate.h
-    gzguts.h
-    inffast.h
-    inffixed.h
-    inflate.h
-    inftrees.h
-    trees.h
-    zutil.h
-)
+# set(ZLIB_PUBLIC_HDRS
+#     ${CMAKE_CURRENT_BINARY_DIR}/zconf.h
+#     zlib.h
+# )
+# set(ZLIB_PRIVATE_HDRS
+#     crc32.h
+#     deflate.h
+#     gzguts.h
+#     inffast.h
+#     inffixed.h
+#     inflate.h
+#     inftrees.h
+#     trees.h
+#     zutil.h
+# )
 set(ZLIB_SRCS
     adler32.c
     compress.c
@@ -183,10 +183,11 @@ if(MINGW)
     set(ZLIB_DLL_SRCS ${CMAKE_CURRENT_BINARY_DIR}/zlib1rc.obj)
 endif(MINGW)
 
-add_library(zlib SHARED ${ZLIB_SRCS} ${ZLIB_ASMS} ${ZLIB_DLL_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
-add_library(zlibstatic STATIC ${ZLIB_SRCS} ${ZLIB_ASMS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
+add_library(zlib SHARED ${ZLIB_SRCS} ${ZLIB_ASMS} ${ZLIB_DLL_SRCS}) # ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
+add_library(zlibstatic STATIC ${ZLIB_SRCS} ${ZLIB_ASMS}) # ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
 set_target_properties(zlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
 set_target_properties(zlib PROPERTIES SOVERSION 1)
+# target_include_directories(example PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(NOT CYGWIN)
     # This property causes shared libraries on Linux to have the full version
@@ -232,18 +233,22 @@ endif()
 
 add_executable(example test/example.c)
 target_link_libraries(example zlib)
+target_include_directories(example PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 add_test(example example)
 
 add_executable(minigzip test/minigzip.c)
 target_link_libraries(minigzip zlib)
+target_include_directories(minigzip PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(HAVE_OFF64_T)
     add_executable(example64 test/example.c)
     target_link_libraries(example64 zlib)
+    target_include_directories(example64 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
     set_target_properties(example64 PROPERTIES COMPILE_FLAGS "-D_FILE_OFFSET_BITS=64")
     add_test(example64 example64)
 
     add_executable(minigzip64 test/minigzip.c)
     target_link_libraries(minigzip64 zlib)
+    target_include_directories(minigzip64 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
     set_target_properties(minigzip64 PROPERTIES COMPILE_FLAGS "-D_FILE_OFFSET_BITS=64")
 endif()
