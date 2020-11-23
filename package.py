@@ -12,4 +12,5 @@ requires = [
 build_system = "cmake"
 
 def commands():
-    env.ZLIB_INCLUDE_DIRS = "{root}"
+    env.ZLIB_ROOT = "{root}"
+    env.ZLIB_INCLUDE_DIRS = "{root}/include"
