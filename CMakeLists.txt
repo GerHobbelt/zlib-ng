@@ -3,7 +3,7 @@ set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS ON)
 
 project(zlib C)
 
-set(VERSION "1.2.11")
+set(VERSION "1.2.14")
 
 option(ASM686 "Enable building i686 assembly implementation")
 option(AMD64 "Enable building amd64 assembly implementation")
@@ -66,17 +66,18 @@ if(MSVC)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 endif()
 
-if(NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR)
-    # If we're doing an out of source build and the user has a zconf.h
-    # in their source tree...
-    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/zconf.h)
-        message(STATUS "Renaming")
-        message(STATUS "    ${CMAKE_CURRENT_SOURCE_DIR}/zconf.h")
-        message(STATUS "to 'zconf.h.included' because this file is included with zlib")
-        message(STATUS "but CMake generates it automatically in the build directory.")
-        file(RENAME ${CMAKE_CURRENT_SOURCE_DIR}/zconf.h ${CMAKE_CURRENT_SOURCE_DIR}/zconf.h.included)
-  endif()
-endif()
+# todo 暂时不确定这个zconf.h.included的用途;这段代码会导致zlib下一次重复编译(先注释)
+# if(NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR)
+#     # If we're doing an out of source build and the user has a zconf.h
+#     # in their source tree...
+#     if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/zconf.h)
+#         message(STATUS "Renaming")
+#         message(STATUS "    ${CMAKE_CURRENT_SOURCE_DIR}/zconf.h")
+#         message(STATUS "to 'zconf.h.included' because this file is included with zlib")
+#         message(STATUS "but CMake generates it automatically in the build directory.")
+#         file(RENAME ${CMAKE_CURRENT_SOURCE_DIR}/zconf.h ${CMAKE_CURRENT_SOURCE_DIR}/zconf.h.included)
+#   endif()
+# endif()
 
 set(ZLIB_PC ${CMAKE_CURRENT_BINARY_DIR}/zlib.pc)
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/zlib.pc.cmakein
@@ -90,21 +91,6 @@ configure_file(	${CMAKE_CURRENT_SOURCE_DIR}/zconf.h.cmakein
 # zlib
 #============================================================================
 
-# set(ZLIB_PUBLIC_HDRS
-#     ${CMAKE_CURRENT_BINARY_DIR}/zconf.h
-#     zlib.h
-# )
-# set(ZLIB_PRIVATE_HDRS
-#     crc32.h
-#     deflate.h
-#     gzguts.h
-#     inffast.h
-#     inffixed.h
-#     inflate.h
-#     inftrees.h
-#     trees.h
-#     zutil.h
-# )
 set(ZLIB_SRCS
     adler32.c
     compress.c
@@ -230,25 +216,26 @@ endif()
 #============================================================================
 # Example binaries
 #============================================================================
+if(BUILD_EXAMPLE)
+    add_executable(example test/example.c)
+    target_link_libraries(example zlib)
+    target_include_directories(example PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+    add_test(example example)
 
-add_executable(example test/example.c)
-target_link_libraries(example zlib)
-target_include_directories(example PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-add_test(example example)
+    add_executable(minigzip test/minigzip.c)
+    target_link_libraries(minigzip zlib)
+    target_include_directories(minigzip PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_executable(minigzip test/minigzip.c)
-target_link_libraries(minigzip zlib)
-target_include_directories(minigzip PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+    if(HAVE_OFF64_T)
+        add_executable(example64 test/example.c)
+        target_link_libraries(example64 zlib)
+        target_include_directories(example64 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+        set_target_properties(example64 PROPERTIES COMPILE_FLAGS "-D_FILE_OFFSET_BITS=64")
+        add_test(example64 example64)
 
-if(HAVE_OFF64_T)
-    add_executable(example64 test/example.c)
-    target_link_libraries(example64 zlib)
-    target_include_directories(example64 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-    set_target_properties(example64 PROPERTIES COMPILE_FLAGS "-D_FILE_OFFSET_BITS=64")
-    add_test(example64 example64)
-
-    add_executable(minigzip64 test/minigzip.c)
-    target_link_libraries(minigzip64 zlib)
-    target_include_directories(minigzip64 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-    set_target_properties(minigzip64 PROPERTIES COMPILE_FLAGS "-D_FILE_OFFSET_BITS=64")
+        add_executable(minigzip64 test/minigzip.c)
+        target_link_libraries(minigzip64 zlib)
+        target_include_directories(minigzip64 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+        set_target_properties(minigzip64 PROPERTIES COMPILE_FLAGS "-D_FILE_OFFSET_BITS=64")
+    endif()
 endif()
