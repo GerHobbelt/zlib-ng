@@ -183,12 +183,15 @@ if(MINGW)
     set(ZLIB_DLL_SRCS ${CMAKE_CURRENT_BINARY_DIR}/zlib1rc.obj)
 endif(MINGW)
 
-add_library(zlib SHARED ${ZLIB_SRCS} ${ZLIB_ASMS} ${ZLIB_DLL_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
-add_library(zlibstatic STATIC ${ZLIB_SRCS} ${ZLIB_ASMS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
-set_target_properties(zlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
-set_target_properties(zlib PROPERTIES SOVERSION 1)
+if(BUILD_SHARED_LIBS)
+	add_library(zlib SHARED ${ZLIB_SRCS} ${ZLIB_ASMS} ${ZLIB_DLL_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
+	set_target_properties(zlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
+	set_target_properties(zlib PROPERTIES SOVERSION 1)
+endif()
 
-if(NOT CYGWIN)
+add_library(zlibstatic STATIC ${ZLIB_SRCS} ${ZLIB_ASMS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
+
+if(NOT CYGWIN AND BUILD_SHARED_LIBS)
     # This property causes shared libraries on Linux to have the full version
     # encoded into their final filename.  We disable this on Cygwin because
     # it causes cygz-${ZLIB_FULL_VERSION}.dll to be created when cygz.dll
@@ -201,9 +204,13 @@ endif()
 
 if(UNIX)
     # On unix-like platforms the library is almost always called libz
-   set_target_properties(zlib zlibstatic PROPERTIES OUTPUT_NAME z)
-   if(NOT APPLE)
-     set_target_properties(zlib PROPERTIES LINK_FLAGS "-Wl,--version-script,\"${CMAKE_CURRENT_SOURCE_DIR}/zlib.map\"")
+   if (BUILD_SHARED_LIBS)
+   	set_target_properties(zlib zlibstatic PROPERTIES OUTPUT_NAME z)
+   	if(NOT APPLE)
+     		set_target_properties(zlib PROPERTIES LINK_FLAGS "-Wl,--version-script,\"${CMAKE_CURRENT_SOURCE_DIR}/zlib.map\"")
+   	endif()
+   else()
+   	set_target_properties(zlibstatic PROPERTIES OUTPUT_NAME z)
    endif()
 elseif(BUILD_SHARED_LIBS AND WIN32)
     # Creates zlib1.dll when building shared library version
@@ -211,10 +218,17 @@ elseif(BUILD_SHARED_LIBS AND WIN32)
 endif()
 
 if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL )
-    install(TARGETS zlib zlibstatic
-        RUNTIME DESTINATION "${INSTALL_BIN_DIR}"
-        ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
-        LIBRARY DESTINATION "${INSTALL_LIB_DIR}" )
+	if (BUILD_SHARED_LIBS)
+    		install(TARGETS zlib zlibstatic
+        		RUNTIME DESTINATION "${INSTALL_BIN_DIR}"
+        		ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+        		LIBRARY DESTINATION "${INSTALL_LIB_DIR}" )
+	else()
+    		install(TARGETS zlibstatic
+        		RUNTIME DESTINATION "${INSTALL_BIN_DIR}"
+        		ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+        		LIBRARY DESTINATION "${INSTALL_LIB_DIR}" )
+	endif()
 endif()
 if(NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL )
     install(FILES ${ZLIB_PUBLIC_HDRS} DESTINATION "${INSTALL_INC_DIR}")
@@ -231,19 +245,19 @@ endif()
 #============================================================================
 
 add_executable(example test/example.c)
-target_link_libraries(example zlib)
+target_link_libraries(example zlibstatic)
 add_test(example example)
 
 add_executable(minigzip test/minigzip.c)
-target_link_libraries(minigzip zlib)
+target_link_libraries(minigzip zlibstatic)
 
 if(HAVE_OFF64_T)
     add_executable(example64 test/example.c)
-    target_link_libraries(example64 zlib)
+    target_link_libraries(example64 zlibstatic)
     set_target_properties(example64 PROPERTIES COMPILE_FLAGS "-D_FILE_OFFSET_BITS=64")
     add_test(example64 example64)
 
     add_executable(minigzip64 test/minigzip.c)
-    target_link_libraries(minigzip64 zlib)
+    target_link_libraries(minigzip64 zlibstatic)
     set_target_properties(minigzip64 PROPERTIES COMPILE_FLAGS "-D_FILE_OFFSET_BITS=64")
 endif()
