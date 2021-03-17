@@ -101,9 +101,15 @@ void gz_compress(FILE *in, gzFile out) {
     if (gz_compress_mmap(in, out) == Z_OK) return;
 #endif
     buf = (char *)calloc(BUFLEN, 1);
+    if (buf == NULL) {
+        perror("out of memory");
+        exit(1);
+    }
+
     for (;;) {
         len = (int)fread(buf, 1, BUFLEN, in);
         if (ferror(in)) {
+            free(buf);
             perror("fread");
             exit(1);
         }
@@ -162,10 +168,14 @@ void gz_uncompress(gzFile in, FILE *out) {
 
     for (;;) {
         len = PREFIX(gzread)(in, buf, BUFLENW);
-        if (len < 0) error (PREFIX(gzerror)(in, &err));
+        if (len < 0) {
+            free(buf);
+            error(PREFIX(gzerror)(in, &err));
+        }
         if (len == 0) break;
 
         if ((int)fwrite(buf, 1, (unsigned)len, out) != len) {
+            free(buf);
             error("failed fwrite");
         }
     }

@@ -72,39 +72,43 @@ endif()
 #
 # Options parsing
 #
-option(WITH_GZFILEOP "Compile with support for gzFile related functions" ON)
-option(ZLIB_COMPAT "Compile with zlib compatible API" OFF)
-option(ZLIB_ENABLE_TESTS "Build test binaries" ON)
-option(ZLIB_DUAL_LINK "Dual link tests against system zlib" OFF)
-option(WITH_SANITIZERS "Build with address sanitizer and all supported sanitizers other than memory sanitizer" OFF)
-option(WITH_MSAN "Build with memory sanitizer" OFF)
-option(WITH_FUZZERS "Build test/fuzz" OFF)
-option(WITH_OPTIM "Build with optimisation" ON)
-option(WITH_NEW_STRATEGIES "Use new strategies" ON)
-option(WITH_NATIVE_INSTRUCTIONS
+macro(add_option name description value)
+    option(${name} ${description} ${value})
+    add_feature_info(${name} ${name} ${description})
+endmacro()
+
+add_option(WITH_GZFILEOP "Compile with support for gzFile related functions" ON)
+add_option(ZLIB_COMPAT "Compile with zlib compatible API" OFF)
+add_option(ZLIB_ENABLE_TESTS "Build test binaries" ON)
+add_option(ZLIB_DUAL_LINK "Dual link tests against system zlib" OFF)
+add_option(WITH_SANITIZER "Build with sanitizer (Memory, Address, Undefined)" OFF)
+add_option(WITH_FUZZERS "Build test/fuzz" OFF)
+add_option(WITH_OPTIM "Build with optimisation" ON)
+add_option(WITH_NEW_STRATEGIES "Use new strategies" ON)
+add_option(WITH_NATIVE_INSTRUCTIONS
     "Instruct the compiler to use the full instruction set on this host (gcc/clang -march=native)" OFF)
-option(WITH_MAINTAINER_WARNINGS "Build with project maintainer warnings" OFF)
-option(WITH_CODE_COVERAGE "Enable code coverage reporting" OFF)
-option(WITH_INFLATE_STRICT "Build with strict inflate distance checking" OFF)
-option(WITH_INFLATE_ALLOW_INVALID_DIST "Build with zero fill for inflate invalid distances" OFF)
-option(WITH_UNALIGNED "Support unaligned reads on platforms that support it" ON)
+add_option(WITH_MAINTAINER_WARNINGS "Build with project maintainer warnings" OFF)
+add_option(WITH_CODE_COVERAGE "Enable code coverage reporting" OFF)
+add_option(WITH_INFLATE_STRICT "Build with strict inflate distance checking" OFF)
+add_option(WITH_INFLATE_ALLOW_INVALID_DIST "Build with zero fill for inflate invalid distances" OFF)
+add_option(WITH_UNALIGNED "Support unaligned reads on platforms that support it" ON)
 
 if(BASEARCH_ARM_FOUND)
-    option(WITH_ACLE "Build with ACLE" ON)
-    option(WITH_NEON "Build with NEON intrinsics" ON)
+    add_option(WITH_ACLE "Build with ACLE" ON)
+    add_option(WITH_NEON "Build with NEON intrinsics" ON)
 elseif(BASEARCH_PPC_FOUND)
-    option(WITH_POWER8 "Build with optimisations for POWER8" ON)
+    add_option(WITH_POWER8 "Build with optimisations for POWER8" ON)
 elseif(BASEARCH_S360_FOUND)
-    option(WITH_DFLTCC_DEFLATE "Use DEFLATE CONVERSION CALL instruction for compression on IBM Z" OFF)
-    option(WITH_DFLTCC_INFLATE "Use DEFLATE CONVERSION CALL instruction for decompression on IBM Z" OFF)
+    add_option(WITH_DFLTCC_DEFLATE "Use DEFLATE CONVERSION CALL instruction for compression on IBM Z" OFF)
+    add_option(WITH_DFLTCC_INFLATE "Use DEFLATE CONVERSION CALL instruction for decompression on IBM Z" OFF)
 elseif(BASEARCH_X86_FOUND)
-    option(WITH_AVX2 "Build with AVX2" ON)
-    option(WITH_SSE2 "Build with SSE2" ON)
-    option(WITH_SSSE3 "Build with SSSE3" ON)
-    option(WITH_SSE4 "Build with SSE4" ON)
-    option(WITH_PCLMULQDQ "Build with PCLMULQDQ" ON)
+    add_option(WITH_AVX2 "Build with AVX2" ON)
+    add_option(WITH_SSE2 "Build with SSE2" ON)
+    add_option(WITH_SSSE3 "Build with SSSE3" ON)
+    add_option(WITH_SSE4 "Build with SSE4" ON)
+    add_option(WITH_PCLMULQDQ "Build with PCLMULQDQ" ON)
 endif()
-option(INSTALL_UTILS "Copy minigzip and minideflate during install" OFF)
+add_option(INSTALL_UTILS "Copy minigzip and minideflate during install" OFF)
 
 mark_as_advanced(FORCE
     ZLIB_DUAL_LINK
@@ -120,22 +124,6 @@ mark_as_advanced(FORCE
     WITH_UNALIGNED
     INSTALL_UTILS
     )
-
-add_feature_info(ZLIB_COMPAT ZLIB_COMPAT "Provide a zlib-compatible API")
-add_feature_info(WITH_GZFILEOP WITH_GZFILEOP "Compile with support for gzFile-related functions")
-add_feature_info(WITH_OPTIM WITH_OPTIM "Build with optimisation")
-add_feature_info(WITH_SANITIZERS WITH_SANITIZERS "Build with address sanitizer and all supported sanitizers other than memory sanitizer")
-add_feature_info(WITH_MSAN WITH_MSAN "Build with memory sanitizer")
-add_feature_info(WITH_FUZZERS WITH_FUZZERS "Build test/fuzz")
-add_feature_info(WITH_NEW_STRATEGIES WITH_NEW_STRATEGIES "Use new strategies")
-if(BASEARCH_ARM_FOUND)
-    add_feature_info(WITH_ACLE WITH_ACLE "Build with ACLE CRC")
-    add_feature_info(WITH_NEON WITH_NEON "Build with NEON intrinsics")
-elseif(BASEARCH_PPC_FOUND)
-    add_feature_info(WITH_POWER8 WITH_POWER8 "Build with optimisations for POWER8")
-endif()
-add_feature_info(WITH_MAINTAINER_WARNINGS WITH_MAINTAINER_WARNINGS "Build with project maintainer warnings")
-add_feature_info(WITH_CODE_COVERAGE WITH_CODE_COVERAGE "Enable code coverage reporting")
 
 if(ZLIB_COMPAT)
     add_definitions(-DZLIB_COMPAT)
@@ -369,22 +357,32 @@ if(NOT HAVE_STRERROR)
     add_definitions(-DNO_STRERROR)
 endif()
 
-if(WITH_MSAN AND WITH_SANITIZERS)
-    message(FATAL_ERROR "Memory sanitizer is incompatible with address sanitizer")
-elseif(WITH_MSAN)
-    add_memory_sanitizer_check()
-elseif(WITH_SANITIZERS)
-    add_sanitizer_checks()
+if(WITH_SANITIZER STREQUAL "Address")
+    add_address_sanitizer()
+elseif(WITH_SANITIZER STREQUAL "Memory")
+    add_memory_sanitizer()
+elseif(WITH_SANITIZER STREQUAL "Undefined")
+    add_undefined_sanitizer()
 endif()
+
+#
+# Check whether compiler supports -fno-semantic-interposition parameter
+#
+set(CMAKE_REQUIRED_FLAGS "-fno-semantic-interposition")
+check_c_source_compiles(
+    "int main() { return 0; }"
+    HAVE_NO_INTERPOSITION
+)
+set(CMAKE_REQUIRED_FLAGS)
+
 #
 # Check if we can hide zlib internal symbols that are linked between separate source files using hidden
 #
 check_c_source_compiles(
     "#define Z_INTERNAL __attribute__((visibility (\"hidden\")))
     int Z_INTERNAL foo;
-    int main()
-    {
-      return 0;
+    int main() {
+        return 0;
     }"
     HAVE_ATTRIBUTE_VISIBILITY_HIDDEN FAIL_REGEX "not supported")
 if(HAVE_ATTRIBUTE_VISIBILITY_HIDDEN)
@@ -397,9 +395,8 @@ endif()
 check_c_source_compiles(
     "#define Z_INTERNAL __attribute__((visibility (\"internal\")))
     int Z_INTERNAL foo;
-    int main()
-    {
-      return 0;
+    int main() {
+        return 0;
     }"
     HAVE_ATTRIBUTE_VISIBILITY_INTERNAL FAIL_REGEX "not supported")
 if(HAVE_ATTRIBUTE_VISIBILITY_INTERNAL)
@@ -410,8 +407,7 @@ endif()
 # check for __builtin_ctz() support in the compiler
 #
 check_c_source_compiles(
-    "int main(void)
-    {
+    "int main(void) {
         unsigned int zero = 0;
         long test = __builtin_ctz(zero);
         (void)test;
@@ -426,8 +422,7 @@ endif()
 # check for __builtin_ctzll() support in the compiler
 #
 check_c_source_compiles(
-    "int main(void)
-    {
+    "int main(void) {
         unsigned int zero = 0;
         long test = __builtin_ctzll(zero);
         (void)test;
@@ -444,7 +439,11 @@ endif()
 #
 check_c_source_compiles(
     "#include <stddef.h>
-     int main() { ptrdiff_t *a; return 0; }"
+     int main() {
+         ptrdiff_t *a;
+         (void)a;
+         return 0;
+    }"
     HAVE_PTRDIFF_T
 )
 if(NOT HAVE_PTRDIFF_T)
@@ -486,7 +485,7 @@ if(BASEARCH_PPC_FOUND)
     check_c_source_compiles(
         "#include <sys/auxv.h>
         int main() {
-          return (getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_2_07);
+            return (getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_2_07);
         }"
         HAVE_POWER8
     )
@@ -496,8 +495,7 @@ elseif(BASEARCH_X86_FOUND)
     set(CMAKE_REQUIRED_FLAGS "${SSE2FLAG}")
     check_c_source_compile_or_run(
         "#include <immintrin.h>
-        int main(void)
-        {
+        int main(void) {
             __m128i zero = _mm_setzero_si128();
             (void)zero;
             return 0;
@@ -508,9 +506,7 @@ elseif(BASEARCH_X86_FOUND)
     set(CMAKE_REQUIRED_FLAGS "${SSSE3FLAG}")
     check_c_source_compile_or_run(
         "#include <immintrin.h>
-
-        int main(void)
-        {
+        int main(void) {
             __m128i u, v, w;
             u = _mm_set1_epi32(1);
             v = _mm_set1_epi32(2);
@@ -523,23 +519,21 @@ elseif(BASEARCH_X86_FOUND)
     # Check whether compiler supports SSE4 CRC inline asm
     set(CMAKE_REQUIRED_FLAGS "${SSE4FLAG}")
     check_c_source_compile_or_run(
-        "int main(void)
-        {
+        "int main(void) {
             unsigned val = 0, h = 0;
         #if defined(_MSC_VER)
             { __asm mov edx, h __asm mov eax, val __asm crc32 eax, edx __asm mov val, eax }
         #else
             __asm__ __volatile__ ( \"crc32 %1,%0\" : \"+r\" (h) : \"r\" (val) );
         #endif
-            return (int) h;
+            return (int)h;
         }"
         HAVE_SSE42CRC_INLINE_ASM
     )
     # Check whether compiler supports SSE4 CRC intrinsics
     check_c_source_compile_or_run(
         "#include <immintrin.h>
-        int main(void)
-        {
+        int main(void) {
             unsigned crc = 0;
             char c = 'c';
         #if defined(_MSC_VER)
@@ -555,8 +549,7 @@ elseif(BASEARCH_X86_FOUND)
     # Check whether compiler supports SSE4.2 compare string instrinics
     check_c_source_compile_or_run(
         "#include <immintrin.h>
-        int main(void)
-        {
+        int main(void) {
             unsigned char a[64] = { 0 };
             unsigned char b[64] = { 0 };
             __m128i xmm_src0, xmm_src1;
@@ -572,8 +565,7 @@ elseif(BASEARCH_X86_FOUND)
         # The pclmul code currently crashes on Mac in 32bit mode. Avoid for now.
         check_c_source_compile_or_run(
             "#include <immintrin.h>
-            int main(void)
-            {
+            int main(void) {
                 __m128i a = _mm_setzero_si128();
                 __m128i b = _mm_setzero_si128();
                 __m128i c = _mm_clmulepi64_si128(a, b, 0x10);
@@ -669,7 +661,7 @@ if(WITH_OPTIM)
             if(MSVC)
                 add_definitions(-D__ARM_NEON__)
             endif()
-            add_feature_info(NEON_ALDER32 1 "Support NEON instructions in adler32, using \"${NEONFLAG}\"")
+            add_feature_info(NEON_ADLER32 1 "Support NEON instructions in adler32, using \"${NEONFLAG}\"")
             add_feature_info(NEON_SLIDEHASH 1 "Support NEON instructions in slide_hash, using \"${NEONFLAG}\"")
         endif()
     elseif(BASEARCH_PPC_FOUND)
@@ -832,6 +824,7 @@ set(ZLIB_PRIVATE_HDRS
     chunkset_tpl.h
     crc32_p.h
     crc32_tbl.h
+    crc32_comb_tbl.h
     deflate.h
     deflate_p.h
     functable.h
@@ -855,6 +848,7 @@ set(ZLIB_SRCS
     compare258.c
     compress.c
     crc32.c
+    crc32_comb.c
     deflate.c
     deflate_fast.c
     deflate_medium.c
@@ -933,12 +927,13 @@ endif()
 
 if(NOT DEFINED BUILD_SHARED_LIBS OR BUILD_SHARED_LIBS)
     set_target_properties(zlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
-    set_target_properties(zlib PROPERTIES SOVERSION 1)
 
     if(ZLIB_COMPAT)
         set(ZLIB_FULL_VERSION ${ZLIB_HEADER_VERSION}.zlib-ng)
+        set_target_properties(zlib PROPERTIES SOVERSION 1)
     else()
         set(ZLIB_FULL_VERSION ${ZLIBNG_HEADER_VERSION})
+        set_target_properties(zlib PROPERTIES SOVERSION 2)
     endif()
 
     if(NOT CYGWIN)
@@ -953,6 +948,9 @@ if(NOT DEFINED BUILD_SHARED_LIBS OR BUILD_SHARED_LIBS)
     endif()
 
     if(UNIX)
+        if(HAVE_NO_INTERPOSITION)
+            set_target_properties(zlib PROPERTIES COMPILE_FLAGS "-fno-semantic-interposition")
+        endif()
         if(NOT APPLE)
             set_target_properties(zlib PROPERTIES LINK_FLAGS
                 "-Wl,--version-script,\"${CMAKE_CURRENT_SOURCE_DIR}/zlib${SUFFIX}.map\"")
@@ -965,7 +963,11 @@ if(NOT DEFINED BUILD_SHARED_LIBS OR BUILD_SHARED_LIBS)
         set(CMAKE_SHARED_LIBRARY_NAME_WITH_VERSION 0)
     elseif(WIN32)
         # Creates zlib1.dll when building shared library version
-        set_target_properties(zlib PROPERTIES SUFFIX "1.dll")
+        if(ZLIB_COMPAT)
+            set_target_properties(zlib PROPERTIES SUFFIX "1.dll")
+        else()
+            set_target_properties(zlib PROPERTIES SUFFIX "2.dll")
+        endif()
     endif()
 endif()
 
@@ -1108,11 +1110,20 @@ if(ZLIB_ENABLE_TESTS)
     target_include_directories(makecrct PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
     set(MAKECRCT_COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:makecrct>)
-    add_test(NAME makecrct
+    add_test(NAME makecrct-crc32
         COMMAND ${CMAKE_COMMAND}
         "-DCOMMAND=${MAKECRCT_COMMAND}"
         -DOUTPUT=${CMAKE_CURRENT_SOURCE_DIR}/crc32_tbl._h
         -DCOMPARE=${CMAKE_CURRENT_SOURCE_DIR}/crc32_tbl.h
+        -DIGNORE_LINE_ENDINGS=ON
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/run-and-compare.cmake)
+
+    set(MAKECRCT_COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:makecrct> -c)
+    add_test(NAME makecrct-crc32-combine
+        COMMAND ${CMAKE_COMMAND}
+        "-DCOMMAND=${MAKECRCT_COMMAND}"
+        -DOUTPUT=${CMAKE_CURRENT_SOURCE_DIR}/crc32_comb_tbl._h
+        -DCOMPARE=${CMAKE_CURRENT_SOURCE_DIR}/crc32_comb_tbl.h
         -DIGNORE_LINE_ENDINGS=ON
         -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/run-and-compare.cmake)
 
