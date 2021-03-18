@@ -1,0 +1,2 @@
+package-name-doesnt-match-sonames libz1
+embedded-library usr/lib/x86_64-linux-gnu/libz.so.1.*: zlib

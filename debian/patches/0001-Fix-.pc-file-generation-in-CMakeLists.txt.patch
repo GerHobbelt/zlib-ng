@@ -1,0 +1,32 @@
+From: Victor Westerhuis <victor@westerhu.is>
+Date: Wed, 17 Mar 2021 16:38:38 +0100
+Subject: Fix .pc file generation in CMakeLists.txt
+
+Two words were swapped in a variable name, leading to empty
+libdir and includedir variables in the generated .pc files.
+
+Forwarded: https://github.com/zlib-ng/zlib-ng/pull/882
+Applied-Upstream: https://github.com/zlib-ng/zlib-ng/commit/681391885c98ce9edab23c154feeef8220c981c8
+---
+ CMakeLists.txt | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 45164fa..2283fa7 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -796,12 +796,12 @@ endif()
+ if(INC_INSTALL_DIR STREQUAL "${CMAKE_INSTALL_PREFIX}/include")
+   set(PC_INC_INSTALL_DIR "\${prefix}/include")
+ else()
+-  set(PC_INC_INSTALL_DIR "${INSTALL_INC_DIR}")
++  set(PC_INC_INSTALL_DIR "${INC_INSTALL_DIR}")
+ endif()
+ if(LIB_INSTALL_DIR STREQUAL "${CMAKE_INSTALL_PREFIX}/lib")
+   set(PC_LIB_INSTALL_DIR "\${exec_prefix}/lib")
+ else()
+-  set(PC_LIB_INSTALL_DIR "${INSTALL_LIB_DIR}")
++  set(PC_LIB_INSTALL_DIR "${LIB_INSTALL_DIR}")
+ endif()
+ 
+ #============================================================================

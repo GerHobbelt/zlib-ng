@@ -1,0 +1,28 @@
+From: Victor Westerhuis <victor@westerhu.is>
+Date: Thu, 18 Mar 2021 12:21:56 +0100
+Subject: Fix GNUInstallDirs includedir detection
+
+CMake uses `INCLUDEDIR` instead of `INCDIR`.
+
+Forwarded: https://github.com/zlib-ng/zlib-ng/pull/891
+Applied-Upstream: https://github.com/zlib-ng/zlib-ng/commit/2ea19800c9dc4b7760b3864a535e2cd05bf39954
+---
+ cmake/detect-install-dirs.cmake | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/cmake/detect-install-dirs.cmake b/cmake/detect-install-dirs.cmake
+index 4214954..ddf1adb 100644
+--- a/cmake/detect-install-dirs.cmake
++++ b/cmake/detect-install-dirs.cmake
+@@ -33,9 +33,9 @@ if (DEFINED INC_INSTALL_DIR)
+     set(INC_INSTALL_DIR "${INC_INSTALL_DIR}" CACHE PATH "Installation directory for headers" FORCE)
+ elseif (DEFINED INSTALL_INC_DIR)
+     set(INC_INSTALL_DIR "${INSTALL_INC_DIR}" CACHE PATH "Installation directory for headers" FORCE)
+-elseif (DEFINED CMAKE_INSTALL_FULL_INCDIR)
++elseif (DEFINED CMAKE_INSTALL_FULL_INCLUDEDIR)
+     set(INC_INSTALL_DIR "${CMAKE_INSTALL_FULL_INCLUDEDIR}" CACHE PATH "Installation directory for headers" FORCE)
+-elseif (DEFINED CMAKE_INSTALL_INCDIR)
++elseif (DEFINED CMAKE_INSTALL_INCLUDEDIR)
+     set(INC_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}" CACHE PATH "Installation directory for headers" FORCE)
+ else()
+     set(INC_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "Installation directory for headers")

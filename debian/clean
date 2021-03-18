@@ -1,0 +1,7 @@
+*._h
+build-compat/
+build-native/
+build-tools/
+tools/makecrct
+tools/makefixed
+tools/maketrees

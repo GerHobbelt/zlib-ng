@@ -1,0 +1,6 @@
+libz-ng.so.2 libz-ng2 #MINVER#
+* Build-Depends-Package: libz-ng-dev
+ (symver)ZLIB_NG_2.0.0 2.0.1
+ (symver)ZLIB_NG_GZ_2.0.0 2.0.1
+ zlibng_string@Base 2.0.1
+ zlibng_version@Base 2.0.1
