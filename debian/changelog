@@ -1,3 +1,9 @@
+zlib-ng (2.0.1-2) testing; urgency=medium
+
+  * Fix static libraries
+
+ -- Victor Westerhuis <victor@westerhu.is>  Fri, 19 Mar 2021 00:42:55 +0100
+
 zlib-ng (2.0.1-1) testing; urgency=medium
 
   * Initial release
