@@ -9,7 +9,7 @@ export DPKG_EXPORT_BUILDTOOLS := 1
 include /usr/share/dpkg/buildtools.mk
 
 export DEB_BUILD_MAINT_OPTIONS := hardening=+all qa=+bug reproducible=+all
-export DEB_CFLAGS_MAINT_APPEND := $(if $(filter noopt,$(DEB_BUILD_OPTIONS)),,-O3) -ffat-lto-objects
+export DEB_CFLAGS_MAINT_APPEND := $(if $(filter noopt,$(DEB_BUILD_OPTIONS)),,-O3)
 export DEB_CFLAGS_MAINT_STRIP := -O2
 
 export DPKG_GENSYMBOLS_CHECK_LEVEL := 4
@@ -21,17 +21,36 @@ generated_headers := crc32_comb_tbl.h crc32_tbl.h inffixed_tbl.h trees_tbl.h
 	dh $@ --buildsystem=cmake
 
 common_configure_options := -DCMAKE_INSTALL_INCLUDEDIR=include/$(DEB_HOST_MULTIARCH) \
-                            -DZLIB_ENABLE_TESTS=$(if $(filter nocheck,$(DEB_BUILD_OPTIONS) $(DEB_BUILD_PROFILES)),NO,YES) \
-                            -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=$(if $(filter noopt,$(DEB_BUILD_OPTIONS)),OFF,ON)
+                            -DZLIB_ENABLE_TESTS=$(if $(filter nocheck,$(DEB_BUILD_OPTIONS) $(DEB_BUILD_PROFILES)),NO,YES)
 
-compat_dh_options := --builddir=build-compat -pzlib1-ng -pzlib1-ng-dev
-native_dh_options := --builddir=build-native -plibz-ng2 -plibz-ng-dev
+builddirs := build-compat-shared \
+             build-compat-static \
+             build-native-shared \
+             build-native-static
 
 override_dh_auto_configure:
-	# Once for zlib1 compatibility
-	dh_auto_configure $(compat_dh_options) -- -DZLIB_COMPAT=ON $(common_configure_options)
-	# Once for the native API
-	dh_auto_configure $(native_dh_options) -- -DZLIB_COMPAT=OFF $(common_configure_options)
+	# Once for zlib1 compatibility, shared library
+	dh_auto_configure --builddir=build-compat-shared -- \
+		-DZLIB_COMPAT=ON \
+		-DBUILD_SHARED_LIBS=ON \
+		-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=$(if $(filter noopt,$(DEB_BUILD_OPTIONS)),OFF,ON) \
+		$(common_configure_options)
+	# Once for zlib1 compatibility, static library
+	dh_auto_configure --builddir=build-compat-static -- \
+		-DZLIB_COMPAT=ON \
+		-DBUILD_SHARED_LIBS=OFF \
+		$(common_configure_options)
+	# Once for the native API, shared library
+	dh_auto_configure --builddir=build-native-shared -- \
+		-DZLIB_COMPAT=OFF \
+		-DBUILD_SHARED_LIBS=ON \
+		-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=$(if $(filter noopt,$(DEB_BUILD_OPTIONS)),OFF,ON) \
+		$(common_configure_options)
+	# Once for the native API, static library
+	dh_auto_configure --builddir=build-native-static -- \
+		-DZLIB_COMPAT=OFF \
+		-DBUILD_SHARED_LIBS=OFF \
+		$(common_configure_options)
 	# And once more for the build tools
 	env CC=$(CC_FOR_BUILD) cmake -S . -B build-tools -DWITH_OPTIM=NO
 	set -e; \
@@ -42,21 +61,27 @@ override_dh_auto_configure:
 	done
 
 override_dh_auto_build: $(generated_headers)
-	dh_auto_build $(compat_dh_options)
-	dh_auto_build $(native_dh_options)
+	set -e; \
+	for builddir in $(builddirs); do \
+		dh_auto_build --builddir=$$builddir; \
+	done
 
 override_dh_auto_test:
-	dh_auto_test $(compat_dh_options)
-	dh_auto_test $(native_dh_options)
+	set -e; \
+	for builddir in $(builddirs); do \
+		dh_auto_test --builddir=$$builddir; \
+	done
 	if [ -n "$$(dh_listpackages -pzlib1-ng)" ]; then \
 		abidiff --no-added-syms --suppressions test/abi/ignore \
 			/lib/$(DEB_HOST_MULTIARCH)/libz.so.1 \
-			build-compat/libz.so.1; \
+			build-compat-shared/libz.so.1; \
 	fi
 
 override_dh_auto_install:
-	dh_auto_install $(compat_dh_options)
-	dh_auto_install $(native_dh_options)
+	set -e; \
+	for builddir in $(builddirs); do \
+		dh_auto_install --builddir=$$builddir; \
+	done
 
 override_dh_installdocs:
 	dh_installdocs -pzlib1-ng-dev --link-doc=zlib1-ng
