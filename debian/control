@@ -16,7 +16,7 @@ Package: zlib1-ng
 Architecture: any
 Multi-Arch: same
 Depends: ${misc:Depends}, ${shlibs:Depends}
-Provides: libz1, zlib1g (= 1:${zlib:Version})
+Provides: libz1, zlib1g (= 1:${zlib:Version}.dfsg)
 Conflicts: libz1
 Replaces: libz1
 Description: optimized compression library - runtime
@@ -42,7 +42,7 @@ Section: libdevel
 Architecture: any
 Multi-Arch: same
 Depends: zlib1-ng (= ${binary:Version}), ${misc:Depends}
-Provides: libz-dev, zlib1g-dev (= 1:${zlib:Version})
+Provides: libz-dev, zlib1g-dev (= 1:${zlib:Version}.dfsg)
 Conflicts: libz-dev
 Replaces: libz-dev
 Description: optimized compression library - development
