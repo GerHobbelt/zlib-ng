@@ -1,1 +1,1 @@
-usr/lib/${DEB_HOST_MULTIARCH}/libz.so.1 usr/lib/${DEB_HOST_MULTIARCH}/libz.so.1.*.zlib-ng lib/${DEB_HOST_MULTIARCH}
+usr/lib/${DEB_HOST_MULTIARCH}/libz.so.1.*.zlib-ng lib/${DEB_HOST_MULTIARCH}

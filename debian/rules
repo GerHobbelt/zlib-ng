@@ -17,6 +17,10 @@ export DPKG_GENSYMBOLS_CHECK_LEVEL := 4
 generated_headers := crc32_comb_tbl.h crc32_tbl.h inffixed_tbl.h trees_tbl.h
 
 
+library_version := $(shell grep '#define ZLIB_VERSION' zlib.h | sed -E 's/#define ZLIB_VERSION "([^"]+)"/\1/')
+zlib_version := $(basename $(library_version))
+
+
 %:
 	dh $@ --buildsystem=cmake
 
@@ -88,9 +92,11 @@ override_dh_installdocs:
 	dh_installdocs -plibz-ng-dev --link-doc=libz-ng2
 	dh_installdocs --remaining-packages
 
+override_dh_installdeb:
+	dh_installdeb -DZLIB_VERSION=$(library_version)
+
 override_dh_gencontrol:
-	dh_gencontrol -pzlib1-ng -pzlib1-ng-dev -- \
-		-Vzlib:Version=$$(grep '#define ZLIB_VERSION' zlib.h | sed -E 's/#define ZLIB_VERSION "(.*).zlib-ng"/\1/')
+	dh_gencontrol -pzlib1-ng -pzlib1-ng-dev -- -Vzlib:Version=$(zlib_version)
 	dh_gencontrol --remaining-packages
 
 execute_after_dh_clean:

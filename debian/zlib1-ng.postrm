@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = abort-install ] && [ -n "$(find "$DPKG_ROOT/lib/#DEB_HOST_MULTIARCH#/libz.so.1" -xtype l)" ]; then
+    rm -f "$DPKG_ROOT/lib/#DEB_HOST_MULTIARCH#/libz.so.1"
+fi
+
+#DEBHELPER#

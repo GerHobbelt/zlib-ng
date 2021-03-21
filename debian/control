@@ -17,8 +17,7 @@ Architecture: any
 Multi-Arch: same
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Provides: libz1, zlib1g (= 1:${zlib:Version}.dfsg)
-Conflicts: libz1
-Replaces: libz1
+Enhances: zlib1g
 Description: optimized compression library - runtime
  Optimized API-compatible replacement for zlib. This fork contains various
  optimizations compared to upstream zlib and cleans up various

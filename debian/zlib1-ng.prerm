@@ -1,0 +1,15 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = remove ]; then
+    stock_zlib=$({
+        dpkg-query --search '/lib/#DEB_HOST_MULTIARCH#/libz.so.1.*' 2> /dev/null ||
+            true
+    } | cut -f2 -d' ' | grep -v '\.zlib-ng$')
+    if [ -n "$stock_zlib" ]; then
+        ln -sf $(basename "$stock_zlib") "$DPKG_ROOT/lib/#DEB_HOST_MULTIARCH#/libz.so.1"
+    fi
+fi
+
+#DEBHELPER#
