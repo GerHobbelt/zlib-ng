@@ -160,6 +160,11 @@ if("${CMAKE_C_COMPILER}" MATCHES "icc" OR "${CMAKE_C_COMPILER}" MATCHES "icpc" O
         message(STATUS "Ignoring WITH_NATIVE_INSTRUCTIONS; not supported on this configuration")
     endif()
 elseif(MSVC)
+    # Minimum supported MSVC version is 1800 = Visual Studio 12.0/2013
+    # See also https://cmake.org/cmake/help/latest/variable/MSVC_VERSION.html
+    if(MSVC_VERSION VERSION_LESS 1800)
+        message(SEND_ERROR "Unsupported Visual Studio compiler version (requires 2013 or later).")
+    endif()
     # TODO. ICC can be used through MSVC. I'm not sure if we'd ever see that combination
     # (who'd use cmake from an IDE...) but checking for ICC before checking for MSVC should
     # avoid mistakes.
@@ -205,8 +210,8 @@ else()
     if(NOT NATIVEFLAG)
         if(__GNUC__)
             if(BASEARCH_ARM_FOUND)
-                if(NOT CMAKE_C_FLAGS MATCHES "-mfloat-abi")
-                    # Check support for ARM floating point
+                if("${ARCH}" MATCHES "arm" AND NOT CMAKE_C_FLAGS MATCHES "-mfloat-abi")
+                    # Check support for ARM floating point ABI
                     execute_process(COMMAND ${CMAKE_C_COMPILER} "-dumpmachine"
                                     OUTPUT_VARIABLE GCC_MACHINE)
                     if("${GCC_MACHINE}" MATCHES "gnueabihf")
@@ -1261,6 +1266,7 @@ if(ZLIB_ENABLE_TESTS)
 
     add_simple_test_executable(deflate_quick_bi_valid)
     add_simple_test_executable(deflate_quick_block_open)
+    add_simple_test_executable(hash_head_0)
 endif()
 
 FEATURE_SUMMARY(WHAT ALL INCLUDE_QUIET_PACKAGES)
