@@ -1,0 +1,103 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: zlib-ng
+Upstream-Contact: https://github.com/zlib-ng/zlib-ng/issues
+Source: https://github.com/zlib-ng/zlib-ng
+License: Zlib
+
+Files: *
+Copyright: 1995-2017 Jean-loup Gailly, Mark Adler
+License: Zlib
+
+Files: compare258.c
+Copyright: 2020 Nathan Moinvaziri
+License: Zlib
+
+Files: functable.?
+Copyright: 2017 Hans Kristian Rosbach
+License: Zlib
+
+Files: deflate_medium.c
+       deflate_quick.c
+       insert_string_tpl.h
+       arch/x86/compare258_sse.c
+       arch/x86/crc_folding.?
+       arch/x86/slide_avx.c
+       arch/x86/slide_sse.c
+       arch/x86/x86.?
+Copyright: 1995-2013 Jean-loup Gailly, Mark Adler
+           2013, 2017 Intel Corporation
+           2016 12Sided Technology, LLC
+License: Zlib
+
+Files: arch/arm/adler32_neon.c
+Copyright: 1995-2011, 2016 Mark Adler
+           2017 ARM Holdings Inc.
+License: Zlib
+
+Files: arch/arm/crc32_acle.c
+Copyright: 1995-2006, 2010, 2011, 2012 Mark Adler
+           2016 Yang Zhang
+License: Zlib
+
+Files: arch/arm/slide_neon.c
+       arch/x86/compare258_avx.c
+Copyright: 2017-2020 Mika T. Lindqvist <postmaster@raasu.org>
+License: Zlib
+
+Files: arch/power/*
+Copyright: 2019-2020 IBM Corporation
+           2020 Matheus Castanho <msc@linux.ibm.com>
+License: Zlib
+
+Files: doc/rfc*.txt
+Copyright: 1996 L. Peter Deutsch
+           1996 Jean-Loup Gailly
+License: zlib-rfc
+ Permission is granted to copy and distribute this document for any
+ purpose and without charge, including translations into other
+ languages and incorporation into compilations, provided that the
+ copyright notice and this notice are preserved, and that any
+ substantive changes or deletions from the original are clearly
+ marked.
+
+Files: doc/txtvsbin.txt
+Copyright: 2006 Cosmin Truta
+License: Zlib
+
+Files: debian/*
+Copyright: 2021 Victor Westerhuis <victor@westerhu.is>
+License: GPL-2+
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <https://www.gnu.org/licenses/>
+ .
+ On Debian systems, the complete text of the GNU General
+ Public License version 2 can be found in "/usr/share/common-licenses/GPL-2".
+
+License: Zlib
+ This software is provided 'as-is', without any express or implied
+ warranty. In no event will the authors be held liable for any damages
+ arising from the use of this software.
+ .
+ Permission is granted to anyone to use this software for any purpose,
+ including commercial applications, and to alter it and redistribute it
+ freely, subject to the following restrictions:
+ .
+ 1. The origin of this software must not be misrepresented; you must not
+    claim that you wrote the original software. If you use this software
+    in a product, an acknowledgment in the product documentation would be
+    appreciated but is not required.
+ .
+ 2. Altered source versions must be plainly marked as such, and must not be
+    misrepresented as being the original software.
+ .
+ 3. This notice may not be removed or altered from any source distribution.

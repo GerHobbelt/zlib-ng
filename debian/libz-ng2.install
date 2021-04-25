@@ -1,0 +1,2 @@
+usr/lib/${DEB_HOST_MULTIARCH}/libz-ng.so.2
+usr/lib/${DEB_HOST_MULTIARCH}/libz-ng.so.2.*

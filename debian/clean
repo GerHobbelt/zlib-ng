@@ -1,0 +1,8 @@
+build-compat-shared/
+build-compat-static/
+build-native-shared/
+build-native-static/
+build-tools/
+tools/makecrct
+tools/makefixed
+tools/maketrees

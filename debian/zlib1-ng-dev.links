@@ -1,0 +1,1 @@
+lib/${DEB_HOST_MULTIARCH}/libz.so.${env:zlib_full_version} usr/lib/${DEB_HOST_MULTIARCH}/libz.so

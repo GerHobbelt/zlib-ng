@@ -1,0 +1,2 @@
+lacks-versioned-link-to-shared-library lib/*/libz.so.1 lib/*/libz.so.1.*.zlib-ng libz.so.1
+package-name-doesnt-match-sonames libz1

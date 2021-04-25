@@ -1,0 +1,88 @@
+From: Nathan Moinvaziri <nathan@nathanm.com>
+Date: Mon, 29 Mar 2021 19:59:06 -0700
+Subject: Changed auto-detection of float-abi support by removing triplet
+ check in favor of compilation and link test. #911
+
+Bug: https://github.com/zlib-ng/zlib-ng/issues/911
+Forwarded-Upstream: https://github.com/zlib-ng/zlib-ng/commit/b82d3497a5afc46dec3c5d07e4b163b169f251d7
+---
+ CMakeLists.txt | 22 ++++++++++++++--------
+ configure      | 30 +++++++++++++++++++++---------
+ 2 files changed, 35 insertions(+), 17 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 88a57d8..2376cfc 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -211,16 +211,22 @@ else()
+         if(__GNUC__)
+             if(BASEARCH_ARM_FOUND)
+                 if("${ARCH}" MATCHES "arm" AND NOT CMAKE_C_FLAGS MATCHES "-mfloat-abi")
+-                    # Check support for ARM floating point ABI
+-                    execute_process(COMMAND ${CMAKE_C_COMPILER} "-dumpmachine"
+-                                    OUTPUT_VARIABLE GCC_MACHINE)
+-                    if("${GCC_MACHINE}" MATCHES "gnueabihf")
+-                        set(FLOATABI "-mfloat-abi=hard")
+-                    elseif("${GCC_MACHINE}" MATCHES ".*gnueabi")
++                    # Auto-detect support for ARM floating point ABI
++                    check_c_compiler_flag(-mfloat-abi=softfp HAVE_FLOATABI_SOFTFP)
++                    if(HAVE_FLOATABI_SOFTFP)
+                         set(FLOATABI "-mfloat-abi=softfp")
++                    else()
++                        check_c_compiler_flag(-mfloat-abi=hard HAVE_FLOATABI_HARD)
++                        if(HAVE_FLOATABI_HARD)
++                            set(FLOATABI "-mfloat-abi=hard")
++                        endif()
++                    endif()
++                    if(FLOATABI)
++                        message(STATUS "ARM floating point arch: ${FLOATABI}")
++                        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${FLOATABI}")
++                    else()
++                        message(STATUS "ARM floating point arch not auto-detected")
+                     endif()
+-                    message(STATUS "ARM floating point arch: ${FLOATABI}")
+-                    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${FLOATABI}")
+                 endif()
+                 # NEON
+                 if("${ARCH}" MATCHES "aarch64")
+diff --git a/configure b/configure
+index 6cc3d5e..d1a44db 100755
+--- a/configure
++++ b/configure
+@@ -1252,15 +1252,27 @@ case "${ARCH}" in
+             ARCH_SHARED_OBJS="${ARCH_SHARED_OBJS} armfeature.lo"
+         fi
+ 
+-        GCC_MACHINE=$(${CC} -dumpmachine)
+-        case "${GCC_MACHINE}" in
+-            *gnueabihf)
+-                floatabi="-mfloat-abi=hard" ;;
+-            *gnueabi)
+-                floatabi="-mfloat-abi=softfp" ;;
+-        esac
+-        CFLAGS="${CFLAGS} ${floatabi}"
+-        SFLAGS="${SFLAGS} ${floatabi}"
++        cat > $test.c << EOF
++int main() { return 0; }
++EOF
++        if try $CC -w -c $SFLAGS $test.c -mfloat-abi=softfp &&
++           try $LDSHARED $LDSHAREDFLAGS $LDFLAGS -o $test$shared_ext $test.o $LDSHAREDLIBC; then
++            floatabi="-mfloat-abi=softfp"
++        else
++            if try $CC -w -c $SFLAGS $test.c -mfloat-abi=hard &&
++               try $LDSHARED $LDSHAREDFLAGS $LDFLAGS -o $test$shared_ext $test.o $LDSHAREDLIBC; then
++                floatabi="-mfloat-abi=hard"
++            fi
++        fi
++
++        if [ -z $floatabi ]; then
++            echo "ARM floating point arch not auto-detected" | tee -a configure.log
++        else
++            echo "ARM floating point arch: ${floatabi}" | tee -a configure.log
++
++            CFLAGS="${CFLAGS} ${floatabi}"
++            SFLAGS="${SFLAGS} ${floatabi}"
++        fi
+ 
+         case "${ARCH}" in
+             armv[345]*)
