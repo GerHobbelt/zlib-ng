@@ -1,0 +1,4 @@
+usr/include/${DEB_HOST_MULTIARCH}/zconf.h
+usr/include/${DEB_HOST_MULTIARCH}/zlib.h
+usr/lib/${DEB_HOST_MULTIARCH}/libz.a
+usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig/zlib.pc

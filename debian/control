@@ -1,0 +1,66 @@
+Source: zlib-ng
+Priority: optional
+Maintainer: Victor Westerhuis <victor@westerhu.is>
+Build-Depends: abigail-tools <!nocheck>,
+               cmake (>= 3.9),
+               debhelper-compat (= 13),
+               zlib1g,
+               zlib1g-dev <!nocheck>
+Build-Conflicts: zlib1-ng, zlib1-ng-dev
+Standards-Version: 4.5.1
+Section: libs
+Homepage: https://github.com/zlib-ng/zlib-ng
+Vcs-Git: https://github.com/viccie30/zlib-ng.git
+Vcs-Browser: https://github.com/viccie30/zlib-ng
+Rules-Requires-Root: no
+
+Package: zlib1-ng
+Architecture: any
+Multi-Arch: same
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Provides: libz1, zlib1g (= 1:${zlib:Version}.dfsg)
+Enhances: zlib1g
+Description: optimized compression library - runtime
+ Optimized API-compatible replacement for zlib. This fork contains various
+ optimizations compared to upstream zlib and cleans up various
+ workarounds for exotic and/or old systems.
+ .
+ This package includes the shared library.
+
+Package: libz-ng2
+Architecture: any
+Multi-Arch: same
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: compression library for the next generation - runtime
+ Optimized fork of zlib. This fork contains various
+ optimizations compared to upstream zlib and cleans up various
+ workarounds for exotic and/or old systems. It also updates the API.
+ .
+ This package includes the shared library.
+
+Package: zlib1-ng-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: zlib1-ng (= ${binary:Version}), ${misc:Depends}
+Provides: libz-dev, zlib1g-dev (= 1:${zlib:Version}.dfsg)
+Conflicts: libz-dev
+Replaces: libz-dev
+Description: optimized compression library - development
+ Optimized API-compatible replacement for zlib. This fork contains
+ various optimizations compared to upstream zlib and cleans up various
+ workarounds for exotic and/or old systems.
+ .
+ This package includes the development support files.
+
+Package: libz-ng-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: libz-ng2 (= ${binary:Version}), ${misc:Depends}
+Description: compression library for the next generation - development
+ Optimized fork of zlib. This fork contains various
+ optimizations compared to upstream zlib and cleans up various
+ workarounds for exotic and/or old systems. It also updates the API.
+ .
+ This package includes the development support files.

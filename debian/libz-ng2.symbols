@@ -1,0 +1,9 @@
+libz-ng.so.2 libz-ng2 #MINVER#
+* Build-Depends-Package: libz-ng-dev
+ (symver)ZLIB_NG_2.0.0 2.0.2
+ (symver)ZLIB_NG_GZ_2.0.0 2.0.2
+ (arch=arm64 armel armhf)adler32_neon@Base 2.0.2
+ (arch=ppc64el)adler32_power8@Base 2.0.2
+ (arch=arm64 armel armhf)crc32_acle@Base 2.0.2
+ zlibng_string@Base 2.0.2
+ zlibng_version@Base 2.0.2

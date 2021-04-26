@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = install ]; then
+	diverter=$(dpkg-divert --listpackage "/lib/#DEB_HOST_MULTIARCH#/libz.so.1")
+
+	if [ "$diverter" != "#PACKAGE#" ] && [ "$diverter" != LOCAL ]; then
+		dpkg-divert --package "#PACKAGE#" \
+			--divert "/lib/#DEB_HOST_MULTIARCH#/libz.stock" \
+			--no-rename "/lib/#DEB_HOST_MULTIARCH#/libz.so.1"
+	fi
+fi
+
+#DEBHELPER#

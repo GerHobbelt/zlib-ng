@@ -1,0 +1,132 @@
+#!/usr/bin/make -f
+# See debhelper(7) (uncomment to enable)
+# output every command that modifies files on the build system.
+#export DH_VERBOSE = 1
+
+
+include /usr/share/dpkg/default.mk
+export DPKG_EXPORT_BUILDTOOLS := 1
+include /usr/share/dpkg/buildtools.mk
+
+export DEB_BUILD_MAINT_OPTIONS := hardening=+all qa=+bug reproducible=+all
+export DEB_CFLAGS_MAINT_APPEND := $(if $(filter noopt,$(DEB_BUILD_OPTIONS)),,-O3)
+export DEB_CFLAGS_MAINT_STRIP := -O2
+
+export DPKG_GENSYMBOLS_CHECK_LEVEL := 4
+
+generated_headers := crc32_comb_tbl.h crc32_tbl.h inffixed_tbl.h trees_tbl.h
+
+
+export zlib_full_version != grep '\#define ZLIB_VERSION' zlib.h | sed -E 's/\#define ZLIB_VERSION "([^"]+)"/\1/'
+zlib_compat_version := $(basename $(zlib_full_version))
+
+
+%:
+	dh $@ --buildsystem=cmake
+
+common_configure_options := -DCMAKE_INSTALL_INCLUDEDIR=include/$(DEB_HOST_MULTIARCH) \
+                            -DZLIB_ENABLE_TESTS=$(if $(filter nocheck,$(DEB_BUILD_OPTIONS) $(DEB_BUILD_PROFILES)),NO,YES) \
+                            -DWITH_DFLTCC_DEFLATE=ON \
+                            -DWITH_DFLTCC_INFLATE=ON
+
+builddirs := build-compat-shared \
+             build-compat-static \
+             build-native-shared \
+             build-native-static
+
+override_dh_auto_configure:
+	# Once for zlib1 compatibility, shared library
+	dh_auto_configure --builddir=build-compat-shared -- \
+		-DZLIB_COMPAT=ON \
+		-DBUILD_SHARED_LIBS=ON \
+		-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=$(if $(filter noopt,$(DEB_BUILD_OPTIONS)),OFF,ON) \
+		$(common_configure_options)
+	# Once for zlib1 compatibility, static library
+	dh_auto_configure --builddir=build-compat-static -- \
+		-DZLIB_COMPAT=ON \
+		-DBUILD_SHARED_LIBS=OFF \
+		$(common_configure_options)
+	# Once for the native API, shared library
+	dh_auto_configure --builddir=build-native-shared -- \
+		-DZLIB_COMPAT=OFF \
+		-DBUILD_SHARED_LIBS=ON \
+		-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=$(if $(filter noopt,$(DEB_BUILD_OPTIONS)),OFF,ON) \
+		$(common_configure_options)
+	# Once for the native API, static library
+	dh_auto_configure --builddir=build-native-static -- \
+		-DZLIB_COMPAT=OFF \
+		-DBUILD_SHARED_LIBS=OFF \
+		$(common_configure_options)
+	# And once more for the build tools
+	env CC=$(CC_FOR_BUILD) cmake -S . -B build-tools -DWITH_OPTIM=NO
+	set -e; \
+	for header in $(generated_headers); do \
+		if ! [ -f $$header.shipped ]; then \
+			cp -a --reflink=auto $$header $$header.shipped; \
+		fi; \
+	done
+
+override_dh_auto_build: $(generated_headers)
+	set -e; \
+	for builddir in $(builddirs); do \
+		dh_auto_build --builddir=$$builddir; \
+	done
+
+override_dh_auto_test:
+	set -e; \
+	for builddir in $(builddirs); do \
+		dh_auto_test --builddir=$$builddir; \
+	done
+	if [ -n "$$(dh_listpackages -pzlib1-ng)" ]; then \
+		abidiff --no-added-syms --suppressions test/abi/ignore \
+			/lib/$(DEB_HOST_MULTIARCH)/libz.so.1 \
+			build-compat-shared/libz.so.1; \
+	fi
+
+override_dh_auto_install:
+	set -e; \
+	for builddir in $(builddirs); do \
+		dh_auto_install --builddir=$$builddir; \
+	done
+
+override_dh_installdocs:
+	dh_installdocs -pzlib1-ng-dev --link-doc=zlib1-ng
+	dh_installdocs -plibz-ng-dev --link-doc=libz-ng2
+	dh_installdocs --remaining-packages
+
+execute_after_dh_makeshlibs:
+	debian/generate-symbols.sh
+
+override_dh_installdeb:
+	dh_installdeb -DZLIB_VERSION=$(zlib_full_version)
+
+override_dh_gencontrol:
+	dh_gencontrol -pzlib1-ng -pzlib1-ng-dev -- -Vzlib:Version=$(zlib_compat_version)
+	dh_gencontrol --remaining-packages
+
+execute_after_dh_clean:
+	set -e; \
+	for header in $(generated_headers); do \
+		if [ -f $$header.shipped ]; then \
+			mv $$header.shipped $$header; \
+		fi; \
+	done
+
+
+tools/%:
+	$(CC_FOR_BUILD) -I. -Ibuild-tools $^ -o $@
+tools/makecrct: tools/makecrct.c
+tools/makefixed: tools/makefixed.c inftrees.c
+tools/maketrees: tools/maketrees.c trees.c
+
+crc32_comb_tbl.h: tools/makecrct
+	$< -c > $@
+
+crc32_tbl.h: tools/makecrct
+	$< > $@
+
+inffixed_tbl.h: tools/makefixed
+	$< > $@
+
+trees_tbl.h: tools/maketrees
+	$< > $@

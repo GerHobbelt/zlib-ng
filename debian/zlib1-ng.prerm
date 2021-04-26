@@ -1,0 +1,30 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = remove ]; then
+	diverter=$(dpkg-divert --listpackage "/lib/#DEB_HOST_MULTIARCH#/libz.so.1")
+
+	if [ "$diverter" = "#PACKAGE#" ]; then
+		dpkg-divert --package "#PACKAGE#" --remove \
+			--no-rename "/lib/#DEB_HOST_MULTIARCH#/libz.so.1"
+	fi
+
+	if [ "$diverter" = "#PACKAGE#" ] || [ -z "$diverter" ]; then
+		dpkg-divert --package zlib1g \
+			--divert "/lib/#DEB_HOST_MULTIARCH#/libz.ng" \
+			--no-rename "/lib/#DEB_HOST_MULTIARCH#/libz.so.1"
+	fi
+
+	if [ -z "$(dpkg-divert --list "/lib/#DEB_HOST_MULTIARCH#/libz.so.#ZLIB_VERSION#")" ]; then
+		cp -a --reflink=auto \
+			"$DPKG_ROOT/lib/#DEB_HOST_MULTIARCH#/libz.so.#ZLIB_VERSION#" \
+			"$DPKG_ROOT/lib/#DEB_HOST_MULTIARCH#/libz.so.#ZLIB_VERSION#.backup"
+		if [ -n "$DPKG_ROOT" ]; then
+			ldconfig -r "$DPKG_ROOT"
+		else
+			ldconfig
+		fi
+	fi
+fi
+
+#DEBHELPER#

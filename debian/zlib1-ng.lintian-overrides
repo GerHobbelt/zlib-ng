@@ -1,0 +1,2 @@
+maintscript-calls-ldconfig
+package-name-doesnt-match-sonames libz1
