@@ -8,6 +8,7 @@
 *.lo
 *.o
 *.dylib
+*.user
 
 *.gcda
 *.gcno
@@ -49,3 +50,6 @@ ztest*.c
 /build-*/tests/*/x64/Release
 /build-*/x64/Debug
 /build-*/x64/Release
+/build-*/.vs/
+/build/
+
