@@ -17,6 +17,8 @@
 #  include <cpuid.h>
 #endif
 
+Z_INTERNAL void dummy_linker_glue_y(void) {}
+
 Z_INTERNAL int x86_cpu_has_avx2;
 Z_INTERNAL int x86_cpu_has_sse2;
 Z_INTERNAL int x86_cpu_has_ssse3;
@@ -52,9 +54,9 @@ static void cpuidex(int info, int subinfo, unsigned* eax, unsigned* ebx, unsigne
 #endif
 }
 
-void Z_INTERNAL x86_check_features(void) {
-    unsigned eax, ebx, ecx, edx;
-    unsigned maxbasic;
+static void __attribute__((constructor)) x86_check_features(void) {
+	unsigned eax, ebx, ecx, edx;
+	unsigned maxbasic;
 
     cpuid(0, &maxbasic, &ebx, &ecx, &edx);
 
