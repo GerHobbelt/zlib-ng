@@ -8,6 +8,8 @@
 #  else
     typedef long ssize_t;
 #  endif
+
+# define __attribute__(x)	/**/
 #endif
 
 #if defined(ZLIB_COMPAT)

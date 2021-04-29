@@ -408,3 +408,27 @@ static void __attribute__((constructor)) longest_match_stub_init() {
 #  endif
 #endif
 }
+
+#if defined(_MSC_VER)
+#define MSVC_HOTFIX_INCLUDE 1
+#include "arch\x86\x86.c"
+
+Z_EXPORT
+void zng_lib_init(void)
+{
+	x86_check_features();
+	insert_string_stub();
+	quick_insert_string_stub_init();
+	slide_hash_stub_init();
+	adler32_stub_init();
+	chunksize_stub_init();
+	chunkcopy_stub_init();
+	chunkcopy_safe_stub_init();
+	chunkunroll_stub_init();
+	chunkmemset_stub_init();
+	chunkmemset_safe_stub_init();
+	crc32_stub_init();
+	compare258_stub_init();
+	longest_match_stub_init();
+}
+#endif

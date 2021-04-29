@@ -17,6 +17,8 @@
 #  include <cpuid.h>
 #endif
 
+#if !defined(_MSC_VER) || defined(MSVC_HOTFIX_INCLUDE)
+
 Z_INTERNAL void dummy_linker_glue_y(void) {}
 
 Z_INTERNAL int x86_cpu_has_avx2;
@@ -80,3 +82,5 @@ static void __attribute__((constructor)) x86_check_features(void) {
         x86_cpu_has_avx2 = 0;
     }
 }
+
+#endif

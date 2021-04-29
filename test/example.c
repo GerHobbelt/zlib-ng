@@ -1019,6 +1019,10 @@ int main(int argc, char *argv[]) {
     printf("zlib version %s = 0x%04x, compile flags = 0x%lx\n",
             PREFIX2(VERSION), PREFIX2(VERNUM), PREFIX(zlibCompileFlags)());
 
+#if defined(_MSC_VER)
+	zng_lib_init();
+#endif
+
     compr    = (unsigned char*)calloc((unsigned int)comprLen, 1);
     uncompr  = (unsigned char*)calloc((unsigned int)uncomprLen, 1);
     /* compr and uncompr are cleared to avoid reading uninitialized
