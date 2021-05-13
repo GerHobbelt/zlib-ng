@@ -1,3 +1,10 @@
+zlib-ng (2.0.3-0.1) testing; urgency=medium
+
+  * Drop upstreamed patches
+  * Fail build if zlib1g is not installed
+
+ -- Victor Westerhuis <victor@westerhu.is>  Thu, 13 May 2021 16:02:43 +0200
+
 zlib-ng (2.0.2-0.1) testing; urgency=medium
 
   * Initial release
