@@ -1,5 +1,0 @@
-0001-Alias-ZEXTERN-ZEXPORT-and-ZEXPORTVA-to-Z_EXTERN-Z_EX.patch
-0002-Changed-auto-detection-of-float-abi-support-by-remov.patch
-0003-Write-generated-files-during-tests-to-CMake-s-build-.patch
-0004-ARM-Use-temporary-variable-when-loading-more-than-8-.patch
-0005-Fix-build-with-LTO-on-GCC.patch
