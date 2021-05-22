@@ -1016,8 +1016,8 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "warning: different zlib version\n");
     }
 
-    printf("zlib version %s = 0x%04x, compile flags = 0x%lx\n",
-            PREFIX2(VERSION), PREFIX2(VERNUM), PREFIX(zlibCompileFlags)());
+    printf("zlib version %s, compile flags = 0x%lx\n",
+            PREFIX2(VERSION), PREFIX(zlibCompileFlags)());
 
 #if defined(_MSC_VER)
 	zng_lib_init();
