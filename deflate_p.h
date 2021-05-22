@@ -33,19 +33,19 @@ static inline int zng_tr_tally_lit(deflate_state *s, unsigned char c) {
     s->sym_buf[s->sym_next++] = c;
     s->dyn_ltree[c].Freq++;
     Tracevv((stderr, "%c", c));
-    Assert(c <= (MAX_MATCH-MIN_MATCH), "zng_tr_tally: bad literal");
+    Assert(c <= (STD_MAX_MATCH-STD_MIN_MATCH), "zng_tr_tally: bad literal");
     return (s->sym_next == s->sym_end);
 }
 
 static inline int zng_tr_tally_dist(deflate_state *s, uint32_t dist, uint32_t len) {
     /* dist: distance of matched string */
-    /* len: match length-MIN_MATCH */
+    /* len: match length-STD_MIN_MATCH */
     s->sym_buf[s->sym_next++] = (uint8_t)(dist);
     s->sym_buf[s->sym_next++] = (uint8_t)(dist >> 8);
     s->sym_buf[s->sym_next++] = (uint8_t)len;
     s->matches++;
     dist--;
-    Assert(dist < MAX_DIST(s) && (uint16_t)d_code(dist) < (uint16_t)D_CODES, 
+    Assert(dist < MAX_DIST(s) && (uint16_t)d_code(dist) < (uint16_t)D_CODES,
         "zng_tr_tally: bad match");
 
     s->dyn_ltree[zng_length_code[len]+LITERALS+1].Freq++;

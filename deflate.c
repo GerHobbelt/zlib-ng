@@ -167,7 +167,7 @@ static const config configuration_table[10] = {
 /* 8 */ {32, 128, 258, 1024, deflate_slow},
 /* 9 */ {32, 258, 258, 4096, deflate_slow}}; /* max compression */
 
-/* Note: the deflate() code requires max_lazy >= MIN_MATCH and max_chain >= 4
+/* Note: the deflate() code requires max_lazy >= STD_MIN_MATCH and max_chain >= 4
  * For deflate_fast() (levels <= 3) good is ignored and lazy has a different
  * meaning.
  */
@@ -443,19 +443,19 @@ int32_t Z_EXPORT PREFIX(deflateSetDictionary)(PREFIX3(stream) *strm, const uint8
     strm->avail_in = dictLength;
     strm->next_in = (z_const unsigned char *)dictionary;
     fill_window(s);
-    while (s->lookahead >= MIN_MATCH) {
+    while (s->lookahead >= STD_MIN_MATCH) {
         str = s->strstart;
-        n = s->lookahead - (MIN_MATCH-1);
+        n = s->lookahead - (STD_MIN_MATCH - 1);
         functable.insert_string(s, str, n);
         s->strstart = str + n;
-        s->lookahead = MIN_MATCH-1;
+        s->lookahead = STD_MIN_MATCH - 1;
         fill_window(s);
     }
     s->strstart += s->lookahead;
     s->block_start = (int)s->strstart;
     s->insert = s->lookahead;
     s->lookahead = 0;
-    s->prev_length = MIN_MATCH-1;
+    s->prev_length = 0;
     s->match_available = 0;
     strm->next_in = (z_const unsigned char *)next;
     strm->avail_in = avail;
@@ -1172,7 +1172,7 @@ static void lm_init(deflate_state *s) {
     s->block_start = 0;
     s->lookahead = 0;
     s->insert = 0;
-    s->prev_length = MIN_MATCH-1;
+    s->prev_length = 0;
     s->match_available = 0;
     s->match_start = 0;
 }
@@ -1186,7 +1186,7 @@ static void lm_init(deflate_state *s) {
  */
 void check_match(deflate_state *s, Pos start, Pos match, int length) {
     /* check that the match length is valid*/
-    if (length < MIN_MATCH || length > MAX_MATCH) {
+    if (length < STD_MIN_MATCH || length > STD_MAX_MATCH) {
         fprintf(stderr, " start %u, match %u, length %d\n", start, match, length);
         z_error("invalid match length");
     }
@@ -1274,20 +1274,10 @@ void Z_INTERNAL fill_window(deflate_state *s) {
         s->lookahead += n;
 
         /* Initialize the hash value now that we have some input: */
-        if (s->lookahead + s->insert >= MIN_MATCH) {
+        if (s->lookahead + s->insert >= STD_MIN_MATCH) {
             unsigned int str = s->strstart - s->insert;
             if (str >= 1)
-                functable.quick_insert_string(s, str + 2 - MIN_MATCH);
-#if MIN_MATCH != 3
-#error Call insert_string() MIN_MATCH-3 more times
-            while (s->insert) {
-                functable.quick_insert_string(s, str);
-                str++;
-                s->insert--;
-                if (s->lookahead + s->insert < MIN_MATCH)
-                    break;
-            }
-#else
+                functable.quick_insert_string(s, str + 2 - STD_MIN_MATCH);
             unsigned int count;
             if (UNLIKELY(s->lookahead == 1)) {
                 count = s->insert - 1;
@@ -1298,9 +1288,8 @@ void Z_INTERNAL fill_window(deflate_state *s) {
                 functable.insert_string(s, str, count);
                 s->insert -= count;
             }
-#endif
         }
-        /* If the whole input has less than MIN_MATCH bytes, ins_h is garbage,
+        /* If the whole input has less than STD_MIN_MATCH bytes, ins_h is garbage,
          * but this is not important since only literal bytes will be emitted.
          */
     } while (s->lookahead < MIN_LOOKAHEAD && s->strm->avail_in != 0);
@@ -1309,8 +1298,8 @@ void Z_INTERNAL fill_window(deflate_state *s) {
      * written, then zero those bytes in order to avoid memory check reports of
      * the use of uninitialized (or uninitialised as Julian writes) bytes by
      * the longest match routines.  Update the high water mark for the next
-     * time through here.  WIN_INIT is set to MAX_MATCH since the longest match
-     * routines allow scanning to strstart + MAX_MATCH, ignoring lookahead.
+     * time through here.  WIN_INIT is set to STD_MAX_MATCH since the longest match
+     * routines allow scanning to strstart + STD_MAX_MATCH, ignoring lookahead.
      */
     if (s->high_water < s->window_size) {
         unsigned int curr = s->strstart + s->lookahead;
@@ -1538,41 +1527,41 @@ static block_state deflate_rle(deflate_state *s, int flush) {
 
     for (;;) {
         /* Make sure that we always have enough lookahead, except
-         * at the end of the input file. We need MAX_MATCH bytes
+         * at the end of the input file. We need STD_MAX_MATCH bytes
          * for the longest run, plus one for the unrolled loop.
          */
-        if (s->lookahead <= MAX_MATCH) {
+        if (s->lookahead <= STD_MAX_MATCH) {
             fill_window(s);
-            if (s->lookahead <= MAX_MATCH && flush == Z_NO_FLUSH)
+            if (s->lookahead <= STD_MAX_MATCH && flush == Z_NO_FLUSH)
                 return need_more;
             if (s->lookahead == 0)
                 break; /* flush the current block */
         }
 
         /* See how many times the previous byte repeats */
-        if (s->lookahead >= MIN_MATCH && s->strstart > 0) {
+        if (s->lookahead >= STD_MIN_MATCH && s->strstart > 0) {
             scan = s->window + s->strstart - 1;
             prev = *scan;
             if (prev == *++scan && prev == *++scan && prev == *++scan) {
-                strend = s->window + s->strstart + MAX_MATCH;
+                strend = s->window + s->strstart + STD_MAX_MATCH;
                 do {
                 } while (prev == *++scan && prev == *++scan &&
                          prev == *++scan && prev == *++scan &&
                          prev == *++scan && prev == *++scan &&
                          prev == *++scan && prev == *++scan &&
                          scan < strend);
-                match_len = MAX_MATCH - (unsigned int)(strend - scan);
+                match_len = STD_MAX_MATCH - (unsigned int)(strend - scan);
                 if (match_len > s->lookahead)
                     match_len = s->lookahead;
             }
             Assert(scan <= s->window + s->window_size - 1, "wild scan");
         }
 
-        /* Emit match if have run of MIN_MATCH or longer, else emit literal */
-        if (match_len >= MIN_MATCH) {
+        /* Emit match if have run of STD_MIN_MATCH or longer, else emit literal */
+        if (match_len >= STD_MIN_MATCH) {
             check_match(s, s->strstart, s->strstart - 1, match_len);
 
-            bflush = zng_tr_tally_dist(s, 1, match_len - MIN_MATCH);
+            bflush = zng_tr_tally_dist(s, 1, match_len - STD_MIN_MATCH);
 
             s->lookahead -= match_len;
             s->strstart += match_len;
