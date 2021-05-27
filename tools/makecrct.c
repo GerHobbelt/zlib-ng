@@ -165,7 +165,13 @@ static void print_crc_combine_table(void) {
 }
 
 // The output of this application can be piped out to recreate crc32.h
-int main(int argc, char *argv[]) {
+
+#if defined(BUILD_MONOLITHIC)
+#define main(cnt, arr)      zlib_mk_crc32_tables_main(cnt, arr)
+#endif
+
+int main(int argc, const char** argv)
+{
     if (argc > 1 && strcmp(argv[1], "-c") == 0) {
         make_crc_combine_table();
         print_crc_combine_table();

@@ -79,7 +79,7 @@ void test_compress(unsigned char *compr, z_size_t comprLen, unsigned char *uncom
  * Test read/write of .gz files
  */
 void test_gzio(const char *fname, unsigned char *uncompr, z_size_t uncomprLen) {
-#ifdef NO_GZCOMPRESS
+#if defined(NO_GZCOMPRESS) || !defined(WITH_GZFILEOP)
     fprintf(stderr, "NO_GZCOMPRESS -- gz* functions cannot compress\n");
 #else
     int err;
@@ -1002,7 +1002,13 @@ void test_deflate_tune(unsigned char *compr, size_t comprLen) {
 /* ===========================================================================
  * Usage:  example [output.gz  [input.gz]]
  */
-int main(int argc, char *argv[]) {
+
+#if defined(BUILD_MONOLITHIC)
+#define main(cnt, arr)      zlib_example_main(cnt, arr)
+#endif
+
+int main(int argc, const char** argv)
+{
     unsigned char *compr, *uncompr;
     z_size_t comprLen = 10000*sizeof(int); /* don't overflow on MSDOS */
     z_size_t uncomprLen = comprLen;

@@ -140,7 +140,13 @@ static void gen_trees_header() {
 }
 
 // The output of this application can be piped out to recreate trees.h
-int main(void) {
+
+#if defined(BUILD_MONOLITHIC)
+#define main(v)      zlib_mk_trees_header_main(v)
+#endif
+
+int main(void)
+{
     tr_static_init();
     gen_trees_header();
     return 0;

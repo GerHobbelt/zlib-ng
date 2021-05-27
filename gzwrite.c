@@ -8,6 +8,8 @@
 #include <stdarg.h>
 #include "gzguts.h"
 
+#ifdef WITH_GZFILEOP
+
 /* Local functions */
 static int gz_init(gz_state *);
 static int gz_comp(gz_state *, int);
@@ -524,3 +526,5 @@ int Z_EXPORT PREFIX(gzclose_w)(gzFile file) {
     zng_free(state);
     return ret;
 }
+
+#endif

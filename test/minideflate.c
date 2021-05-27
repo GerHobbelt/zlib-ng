@@ -211,7 +211,7 @@ void inflate_params(FILE *fin, FILE *fout, int32_t read_buf_size, int32_t write_
     free(write_buf);
 }
 
-void show_help(void) {
+static void show_help(void) {
     printf("Usage: minideflate [-c] [-f|-h|-R|-F] [-m level] [-r/-t size] [-s flush] [-w bits] [-0 to -9] [input file]\n\n" \
            "  -c : write to standard output\n" \
            "  -d : decompress\n" \
@@ -227,7 +227,13 @@ void show_help(void) {
            "  -0 to -9 : compression level\n\n");
 }
 
-int main(int argc, char **argv) {
+
+#if defined(BUILD_MONOLITHIC)
+#define main(cnt, arr)      zlib_mini_deflate_main(cnt, arr)
+#endif
+
+int main(int argc, const char** argv)
+{
     int32_t i;
     int32_t mem_level = DEF_MEM_LEVEL;
     int32_t window_bits = MAX_WBITS;

@@ -11,7 +11,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-int main() {
+
+#if defined(BUILD_MONOLITHIC)
+#define main(v)      zlib_deflate_quick_block_open_test_main(v)
+#endif
+
+int main(void)
+{
     PREFIX3(stream) strm;
 
     memset(&strm, 0, sizeof(strm));
@@ -107,4 +113,5 @@ int main() {
         fprintf(stderr, "Uncompressed data differs from the original\n");
         return EXIT_FAILURE;
     }
+	return EXIT_SUCCESS;
 }

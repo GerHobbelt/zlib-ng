@@ -7,6 +7,8 @@
 #include "zutil_p.h"
 #include "gzguts.h"
 
+#ifdef WITH_GZFILEOP
+
 /* Local functions */
 static int gz_load(gz_state *, unsigned char *, unsigned, unsigned *);
 static int gz_avail(gz_state *);
@@ -600,3 +602,5 @@ int Z_EXPORT PREFIX(gzclose_r)(gzFile file) {
     zng_free(state);
     return ret ? Z_ERRNO : err;
 }
+
+#endif

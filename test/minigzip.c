@@ -61,6 +61,8 @@ extern int unlink (const char *);
 #define BUFLENW     (BUFLEN * 3) /* write buffer size */
 #define MAX_NAME_LEN 1024
 
+#if defined(WITH_GZFILEOP)
+
 static char *prog;
 
 void error            (const char *msg);
@@ -258,7 +260,7 @@ void file_uncompress(char *file, int keep) {
         unlink(infile);
 }
 
-void show_help(void) {
+static void show_help(void) {
     printf("Usage: minigzip [-c] [-d] [-k] [-f|-h|-R|-F|-T] [-A] [-0 to -9] [files...]\n\n" \
            "  -c : write to standard output\n" \
            "  -d : decompress\n" \
@@ -272,7 +274,13 @@ void show_help(void) {
            "  -0 to -9 : compression level\n\n");
 }
 
-int main(int argc, char *argv[]) {
+
+#if defined(BUILD_MONOLITHIC)
+#define main(cnt, arr)      zlib_mini_gzip_main(cnt, arr)
+#endif
+
+int main(int argc, const char** argv)
+{
     int copyout = 0;
     int uncompr = 0;
     int keep = 0;
@@ -370,3 +378,17 @@ int main(int argc, char *argv[]) {
     }
     return 0;
 }
+
+#else
+
+#if defined(BUILD_MONOLITHIC)
+#define main(cnt, arr)      zlib_mini_gzip_main(cnt, arr)
+#endif
+
+int main(int argc, const char** argv)
+{
+	fprintf(stderr, "tool is not supported in this zlib build.\n");
+	return 1;
+}
+
+#endif

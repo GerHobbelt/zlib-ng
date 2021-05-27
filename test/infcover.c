@@ -670,7 +670,13 @@ static void cover_fast(void) {
         Z_STREAM_END);
 }
 
-int main(void) {
+
+#if defined(BUILD_MONOLITHIC)
+#define main(v)      zlib_infcover_test_main(v)
+#endif
+
+int main(void)
+{
     fprintf(stderr, "%s\n", zVersion());
     cover_support();
     cover_wrap();

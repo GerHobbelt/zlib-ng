@@ -7,6 +7,8 @@
 #include "zutil_p.h"
 #include "gzguts.h"
 
+#ifdef WITH_GZFILEOP
+
 #if defined(_WIN32)
 #  define LSEEK _lseeki64
 #else
@@ -540,4 +542,6 @@ unsigned Z_INTERNAL gz_intmax() {
     } while (p > q);
     return q >> 1;
 }
+#endif
+
 #endif
