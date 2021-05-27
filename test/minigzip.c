@@ -63,22 +63,22 @@ extern int unlink (const char *);
 
 #if defined(WITH_GZFILEOP)
 
-static char *prog;
+static const char *prog = NULL;
 
-void error            (const char *msg);
-void gz_compress      (FILE *in, gzFile out);
+static void error            (const char *msg);
+static void gz_compress      (FILE *in, gzFile out);
 #ifdef USE_MMAP
-int  gz_compress_mmap (FILE *in, gzFile out);
+static int  gz_compress_mmap (FILE *in, gzFile out);
 #endif
-void gz_uncompress    (gzFile in, FILE *out);
-void file_compress    (char *file, char *mode, int keep);
-void file_uncompress  (char *file, int keep);
-int  main             (int argc, char *argv[]);
+static void gz_uncompress    (gzFile in, FILE *out);
+static void file_compress    (const char *file, const char *mode, int keep);
+static void file_uncompress  (const char *file, int keep);
+int  main             (int argc, const char *argv[]);
 
 /* ===========================================================================
  * Display error message and exit
  */
-void error(const char *msg) {
+static void error(const char *msg) {
     fprintf(stderr, "%s: %s\n", prog, msg);
     exit(1);
 }
@@ -87,7 +87,7 @@ void error(const char *msg) {
  * Compress input to output then close both files.
  */
 
-void gz_compress(FILE *in, gzFile out) {
+static void gz_compress(FILE *in, gzFile out) {
     char *buf;
     int len;
     int err;
@@ -125,7 +125,7 @@ void gz_compress(FILE *in, gzFile out) {
 /* Try compressing the input file at once using mmap. Return Z_OK if
  * if success, Z_ERRNO otherwise.
  */
-int gz_compress_mmap(FILE *in, gzFile out) {
+static int gz_compress_mmap(FILE *in, gzFile out) {
     int len;
     int err;
     int ifd = fileno(in);
@@ -157,7 +157,7 @@ int gz_compress_mmap(FILE *in, gzFile out) {
 /* ===========================================================================
  * Uncompress input to output then close both files.
  */
-void gz_uncompress(gzFile in, FILE *out) {
+static void gz_uncompress(gzFile in, FILE *out) {
     char *buf = (char *)malloc(BUFLENW);
     int len;
     int err;
@@ -188,7 +188,7 @@ void gz_uncompress(gzFile in, FILE *out) {
  * Compress the given file: create a corresponding .gz file and remove the
  * original.
  */
-void file_compress(char *file, char *mode, int keep) {
+static void file_compress(const char *file, const char *mode, int keep) {
     char outfile[MAX_NAME_LEN];
     FILE *in;
     gzFile out;
@@ -220,9 +220,10 @@ void file_compress(char *file, char *mode, int keep) {
 /* ===========================================================================
  * Uncompress the given file and remove the original.
  */
-void file_uncompress(char *file, int keep) {
+static void file_uncompress(const char *file, int keep) {
     char buf[MAX_NAME_LEN];
-    char *infile, *outfile;
+	const char* infile;
+	const char* outfile;
     FILE *out;
     gzFile in;
     size_t len = strlen(file);
@@ -237,7 +238,7 @@ void file_uncompress(char *file, int keep) {
     if (len > SUFFIX_LEN && strcmp(file+len-SUFFIX_LEN, GZ_SUFFIX) == 0) {
         infile = file;
         outfile = buf;
-        outfile[len-3] = '\0';
+        buf[len-3] = '\0';
     } else {
         outfile = file;
         infile = buf;
@@ -286,10 +287,11 @@ int main(int argc, const char** argv)
     int keep = 0;
     int i = 0;
     gzFile file;
-    char *bname, outmode[20];
-    char *strategy = "";
-    char *level = "6";
-    char *type = "b";
+	const char* bname;
+	char outmode[20];
+	const char *strategy = "";
+	const char *level = "6";
+	const char *type = "b";
 
     prog = argv[i];
     bname = strrchr(argv[i], '/');
