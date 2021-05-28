@@ -225,9 +225,7 @@ typedef gz_header *gz_headerp;
 
                         /* basic functions */
 
-#if defined(_MSC_VER)
 Z_EXTERN void Z_EXPORT zng_lib_init(void);
-#endif
 
 Z_EXTERN const char * Z_EXPORT zlibVersion(void);
 /* The application can compare zlibVersion and ZLIB_VERSION for consistency.

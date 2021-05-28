@@ -137,7 +137,7 @@ extern uint32_t longest_match_unaligned_avx2(deflate_state *const s, Pos cur_mat
 Z_INTERNAL void dummy_linker_glue_x(void) {}
 
 /* functable init */
-Z_INTERNAL struct functable_s functable;
+Z_INTERNAL struct functable_s functable = { 0 };
 
 /* stub functions */
 static void __attribute__((constructor)) insert_string_stub() {
@@ -412,10 +412,15 @@ static void __attribute__((constructor)) longest_match_stub_init() {
 #if defined(_MSC_VER)
 #define MSVC_HOTFIX_INCLUDE 1
 #include "arch\x86\x86.c"
+#endif
 
 Z_EXPORT
 void zng_lib_init(void)
 {
+	// have thesee 'constructors' alrwady been invoked and the `functable` set up properly? If yes, then skip/exit now.
+	if (functable.longest_match)
+		return;
+
 	x86_check_features();
 	insert_string_stub();
 	quick_insert_string_stub_init();
@@ -431,4 +436,3 @@ void zng_lib_init(void)
 	compare258_stub_init();
 	longest_match_stub_init();
 }
-#endif

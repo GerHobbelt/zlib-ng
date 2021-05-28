@@ -210,10 +210,8 @@ typedef zng_gz_header *zng_gz_headerp;
 
                         /* basic functions */
 
-#if defined(_MSC_VER)
 Z_EXTERN Z_EXPORT
 void zng_lib_init(void);
-#endif
 
 
 Z_EXTERN Z_EXPORT
