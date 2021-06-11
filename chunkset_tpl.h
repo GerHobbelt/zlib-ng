@@ -37,7 +37,8 @@ Z_INTERNAL uint8_t* CHUNKCOPY(uint8_t *out, uint8_t const *from, unsigned len) {
 
 /* Behave like chunkcopy, but avoid writing beyond of legal output. */
 Z_INTERNAL uint8_t* CHUNKCOPY_SAFE(uint8_t *out, uint8_t const *from, unsigned len, uint8_t *safe) {
-    if ((safe - out) < (ptrdiff_t)sizeof(chunk_t)) {
+    len = MIN(len, safe - out + 1);
+    if (len < (ptrdiff_t)sizeof(chunk_t)) {
         int32_t use_chunk16 = sizeof(chunk_t) > 16 && (len & 16);
         if (use_chunk16) {
             memcpy(out, from, 16);
@@ -161,11 +162,22 @@ Z_INTERNAL uint8_t* CHUNKMEMSET(uint8_t *out, unsigned dist, unsigned len) {
 
 Z_INTERNAL uint8_t* CHUNKMEMSET_SAFE(uint8_t *out, unsigned dist, unsigned len, unsigned left) {
     if (left < (unsigned)(3 * sizeof(chunk_t))) {
-        while (len > 0) {
-            *out = *(out - dist);
-            out++;
-            --len;
+        uint8_t *from = out - dist;
+        uint8_t *end = out + left - 1;
+        if (dist < sizeof(void *)) {
+            while (len > 0) {
+                *out++ = *from++;
+                --len;
+            }
+            return out;
         }
+        /* Unroll if dist is at least pointer size */
+        unsigned max_len = MIN(dist, len);
+        while (len) {
+            out = CHUNKCOPY_SAFE(out, from, max_len, end);
+            len -= max_len;
+            max_len = MIN(max_len * 2, len);
+        };
         return out;
     }
     return CHUNKMEMSET(out, dist, len);
