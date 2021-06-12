@@ -50,6 +50,8 @@ extern "C" {
 #define ZLIBNG_VER_REVISION 0
 #define ZLIBNG_VER_SUBREVISION d
 
+#define WITH_GZFILEOP 1
+
 /*
     The 'zlib' compression library provides in-memory compression and
   decompression functions, including integrity checks of the uncompressed data.
@@ -727,7 +729,7 @@ int32_t zng_deflateParams(zng_stream *strm, int32_t level, int32_t strategy);
    Then no more input data should be provided before the deflateParams() call.
    If this is done, the old level and strategy will be applied to the data
    compressed before deflateParams(), and the new level and strategy will be
-   applied to the the data compressed after deflateParams().
+   applied to the data compressed after deflateParams().
 
      deflateParams returns Z_OK on success, Z_STREAM_ERROR if the source stream
    state was inconsistent or if a parameter was invalid, or Z_BUF_ERROR if
@@ -926,7 +928,7 @@ int32_t zng_inflateSync(zng_stream *strm);
      inflateSync returns Z_OK if a possible full flush point has been found,
    Z_BUF_ERROR if no more input was provided, Z_DATA_ERROR if no flush point
    has been found, or Z_STREAM_ERROR if the stream structure was inconsistent.
-   In the success case, the application may save the current current value of
+   In the success case, the application may save the current value of
    total_in which indicates where valid compressed data was found.  In the
    error case, the application may repeatedly call inflateSync, providing more
    input each time, until success or end of the input data.
