@@ -39,16 +39,16 @@ nuget
       {
          [${0}, ${1}, ${2}]
          {
-            lib:    { contrib\vstudio\vc15\x86\ZlibStat${2}\*.lib; }
-            libpdb: { contrib\vstudio\vc15\x86\ZlibStat${2}\*.pdb; }
+            lib:    { contrib\vstudio\vc16\x86\ZlibStat${2}\*.lib; }
+            libpdb: { contrib\vstudio\vc16\x86\ZlibStat${2}\*.pdb; }
          };
       };
       ("x64", "v141", "Debug,Release") =>
       {
          [${0}, ${1}, ${2}]
          {
-            lib:    { contrib\vstudio\vc15\${0}\ZlibStat${2}\*.lib; }
-            libpdb: { contrib\vstudio\vc15\${0}\ZlibStat${2}\*.pdb; }
+            lib:    { contrib\vstudio\vc16\${0}\ZlibStat${2}\*.lib; }
+            libpdb: { contrib\vstudio\vc16\${0}\ZlibStat${2}\*.pdb; }
          };
       };
 
