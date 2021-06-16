@@ -33,7 +33,8 @@ nuget
 
    files
    {
-      nestedInclude: { #destination=${d_include}Zlib; *.h };
+      nested2Include: { #destination=${d_include}Zlib; "*.h" };
+      nested1Include: { #destination=${d_include}Zlib\contrib\minizip; "contrib\minizip\*.h" };
       libpdb:        { #destination=${d_lib}; };
       ("Win32", "v141", "Debug,Release") =>
       {
