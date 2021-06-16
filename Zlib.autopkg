@@ -2,7 +2,7 @@ configurations
 {
    Toolset {
       key : "PlatformToolset";
-      choices: { v141 };
+      choices: { v142 };
    };
 }
 
@@ -11,7 +11,7 @@ nuget
    nuspec
    {
       id = zlib-tsc-package;
-      version: 1.2.11.2;
+      version: 2.0.0.0;
       title: zlib compression library;
       authors: { TechSmith Corporation, Jean-loup Gailly, Mark Adler };
       owners: { TechSmith Corporation };
@@ -25,30 +25,30 @@ nuget
          Breaking changes:
          Bug fixes:
          Misc:
-            - Updated toolset to v141 for Visual Studio 2017
+            - Updated toolset to v142 for Visual Studio 2019
          ";
       copyright: @"Copyright (c) 2018.";
-      tags: { zlib, CoApp, compression, vs2017, native };
+      tags: { zlib, CoApp, compression, vs2019, native };
    };
 
    files
    {
       nestedInclude: { #destination=${d_include}Zlib; *.h };
       libpdb:        { #destination=${d_lib}; };
-      ("Win32", "v141", "Debug,Release") =>
+      ("Win32", "v142", "Debug,Release") =>
       {
          [${0}, ${1}, ${2}]
          {
-            lib:    { contrib\vstudio\vc15\x86\ZlibStat${2}\*.lib; }
-            libpdb: { contrib\vstudio\vc15\x86\ZlibStat${2}\*.pdb; }
+            lib:    { contrib\vstudio\vc16\x86\ZlibStat${2}\*.lib; }
+            libpdb: { contrib\vstudio\vc16\x86\ZlibStat${2}\*.pdb; }
          };
       };
-      ("x64", "v141", "Debug,Release") =>
+      ("x64", "v142", "Debug,Release") =>
       {
          [${0}, ${1}, ${2}]
          {
-            lib:    { contrib\vstudio\vc15\${0}\ZlibStat${2}\*.lib; }
-            libpdb: { contrib\vstudio\vc15\${0}\ZlibStat${2}\*.pdb; }
+            lib:    { contrib\vstudio\vc16\${0}\ZlibStat${2}\*.lib; }
+            libpdb: { contrib\vstudio\vc16\${0}\ZlibStat${2}\*.pdb; }
          };
       };
 
