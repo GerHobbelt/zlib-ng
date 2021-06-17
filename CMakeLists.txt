@@ -742,14 +742,13 @@ if(WITH_OPTIM)
             add_definitions(-DPOWER8_VSX_SLIDEHASH)
             list(APPEND ZLIB_ARCH_HDRS ${ARCHDIR}/power.h)
             list(APPEND ZLIB_ARCH_SRCS ${ARCHDIR}/power.c)
-            set(POWER8_SRCS ${ARCHDIR}/adler32_power8.c ${ARCHDIR}/slide_hash_power8.c)
+            set(POWER8_SRCS ${ARCHDIR}/adler32_power8.c ${ARCHDIR}/slide_power8.c)
             list(APPEND ZLIB_ARCH_SRCS ${POWER8_SRCS})
             set_property(SOURCE ${POWER8_SRCS} PROPERTY COMPILE_FLAGS "${POWER8FLAG} ${NOLTOFLAG}")
         endif()
     elseif(BASEARCH_S360_FOUND)
         if(WITH_DFLTCC_DEFLATE OR WITH_DFLTCC_INFLATE)
             list(APPEND ZLIB_ARCH_SRCS ${ARCHDIR}/dfltcc_common.c)
-            add_definitions(-DGZBUFSIZE=262144)
         endif()
         if(WITH_DFLTCC_DEFLATE)
             add_definitions(-DS390_DFLTCC_DEFLATE)
@@ -920,9 +919,12 @@ set(ZLIB_SRCS
     crc32_comb.c
     deflate.c
     deflate_fast.c
+    deflate_huff.c
     deflate_medium.c
     deflate_quick.c
+    deflate_rle.c
     deflate_slow.c
+    deflate_stored.c
     functable.c
     infback.c
     inffast.c

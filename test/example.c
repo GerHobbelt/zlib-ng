@@ -1022,8 +1022,8 @@ int main(int argc, const char** argv)
         fprintf(stderr, "warning: different zlib version\n");
     }
 
-    printf("zlib version %s, compile flags = 0x%lx\n",
-            PREFIX2(VERSION), PREFIX(zlibCompileFlags)());
+    printf("zlib-ng version %s = 0x%08lx, compile flags = 0x%lx\n",
+            ZLIBNG_VERSION, ZLIBNG_VERNUM, PREFIX(zlibCompileFlags)());
 
 	zng_lib_init();
 
