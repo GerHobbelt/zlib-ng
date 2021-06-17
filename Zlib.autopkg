@@ -11,7 +11,7 @@ nuget
    nuspec
    {
       id = zlib-tsc-package;
-      version: 1.2.11.2;
+      version: 1.2.11.3;
       title: zlib compression library;
       authors: { TechSmith Corporation, Jean-loup Gailly, Mark Adler };
       owners: { TechSmith Corporation };
@@ -22,10 +22,13 @@ nuget
       summary: @"Zlib Compression Library for use in TechSmith products";
       description: @"Zlib is a compression library written in C.
          New features:
-         Breaking changes:
          Bug fixes:
-         Misc:
-            - Updated toolset to v141 for Visual Studio 2017
+         Breaking changes:
+         Changes:
+            - 1.2.11.3 Include contrib/minizip header files
+            - 1.2.11.2 Updated toolset to v141 for Visual Studio 2017
+            - 1.2.11.1 Removed ASMV & ASMINF from Release 
+            - 1.2.11   Initial version
          ";
       copyright: @"Copyright (c) 2018.";
       tags: { zlib, CoApp, compression, vs2017, native };
@@ -33,7 +36,8 @@ nuget
 
    files
    {
-      nestedInclude: { #destination=${d_include}Zlib; *.h };
+      nested2Include: { #destination=${d_include}Zlib; "*.h" };
+      nested1Include: { #destination=${d_include}Zlib\contrib\minizip; "contrib\minizip\*.h" };
       libpdb:        { #destination=${d_lib}; };
       ("Win32", "v141", "Debug,Release") =>
       {
