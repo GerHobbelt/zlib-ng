@@ -17,7 +17,7 @@
  */
 static inline void check_match(deflate_state *s, Pos start, Pos match, int length) {
     /* check that the match length is valid*/
-    if (length < MIN_MATCH || length > MAX_MATCH) {
+    if (length < STD_MIN_MATCH || length > STD_MAX_MATCH) {
         fprintf(stderr, " start %u, match %u, length %d\n", start, match, length);
         z_error("invalid match length");
     }

@@ -546,8 +546,8 @@ int32_t Z_EXPORT PREFIX(deflatePrime)(PREFIX3(stream) *strm, int32_t bits, int32
         return Z_BUF_ERROR;
     do {
         put = BIT_BUF_SIZE - s->bi_valid;
-        if (put > bits)
-            put = bits;
+        put = MIN(put, bits);
+
         if (s->bi_valid == 0)
             s->bi_buf = value64;
         else
@@ -1111,8 +1111,7 @@ int32_t Z_EXPORT PREFIX(deflateCopy)(PREFIX3(stream) *dest, PREFIX3(stream) *sou
 Z_INTERNAL unsigned read_buf(PREFIX3(stream) *strm, unsigned char *buf, unsigned size) {
     uint32_t len = strm->avail_in;
 
-    if (len > size)
-        len = size;
+    len = MIN(len, size);
     if (len == 0)
         return 0;
 
@@ -1274,8 +1273,6 @@ void Z_INTERNAL fill_window(deflate_state *s) {
     Assert((unsigned long)s->strstart <= s->window_size - MIN_LOOKAHEAD,
            "not enough room for search");
 }
-
-
 
 #ifndef ZLIB_COMPAT
 /* =========================================================================
