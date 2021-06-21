@@ -85,10 +85,10 @@ void makefixed(void) {
 // The output of this application can be piped out to recreate inffixed_tbl.h
 
 #if defined(BUILD_MONOLITHIC)
-#define main(v)      zlib_mk_fixed_table_main(v)
+#define main()      zlib_mk_fixed_table_main()
 #endif
 
-int main(void)
+int main()
 {
 	makefixed();
     return 0;

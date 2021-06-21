@@ -357,10 +357,10 @@ static const int test_size = sizeof(tests) / sizeof(tests[0]);
 
 
 #if defined(BUILD_MONOLITHIC)
-#define main(v)      zlib_adler32_test_main(v)
+#define main()      zlib_adler32_test_main()
 #endif
 
-int main(void)
+int main()
 {
 	int i;
     for (i = 0; i < test_size; i++) {

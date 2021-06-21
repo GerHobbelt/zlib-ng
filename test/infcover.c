@@ -672,10 +672,10 @@ static void cover_fast(void) {
 
 
 #if defined(BUILD_MONOLITHIC)
-#define main(v)      zlib_infcover_test_main(v)
+#define main()      zlib_infcover_test_main()
 #endif
 
-int main(void)
+int main()
 {
     fprintf(stderr, "%s\n", zVersion());
     cover_support();
