@@ -417,7 +417,7 @@ static void __attribute__((constructor)) longest_match_stub_init() {
 Z_EXPORT
 void zng_lib_init(void)
 {
-	// have thesee 'constructors' alrwady been invoked and the `functable` set up properly? If yes, then skip/exit now.
+	// have thesee 'constructors' already been invoked and the `functable` set up properly? If yes, then skip/exit now.
 	if (functable.longest_match)
 		return;
 

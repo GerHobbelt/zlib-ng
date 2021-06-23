@@ -278,7 +278,8 @@ int32_t Z_EXPORT PREFIX(deflateInit2_)(PREFIX3(stream) *strm, int32_t level, int
     s = (deflate_state *) ZALLOC_STATE(strm, 1, sizeof(deflate_state));
     if (s == NULL)
         return Z_MEM_ERROR;
-    strm->state = (struct internal_state *)s;
+	memset(s, 0, sizeof(*s));
+	strm->state = (struct internal_state *)s;
     s->strm = strm;
     s->status = INIT_STATE;     /* to pass state test in deflateReset() */
 
@@ -1068,7 +1069,8 @@ int32_t Z_EXPORT PREFIX(deflateCopy)(PREFIX3(stream) *dest, PREFIX3(stream) *sou
     ds = (deflate_state *) ZALLOC_STATE(dest, 1, sizeof(deflate_state));
     if (ds == NULL)
         return Z_MEM_ERROR;
-    dest->state = (struct internal_state *) ds;
+	memset(ds, 0, sizeof(*ds));
+	dest->state = (struct internal_state *) ds;
     ZCOPY_STATE((void *)ds, (void *)ss, sizeof(deflate_state));
     ds->strm = dest;
 
