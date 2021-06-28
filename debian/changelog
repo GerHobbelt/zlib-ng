@@ -1,3 +1,9 @@
+zlib-ng (2.0.5-0.1) testing; urgency=medium
+
+  * New upstream release
+
+ -- Victor Westerhuis <victor@westerhu.is>  Mon, 28 Jun 2021 10:50:11 +0200
+
 zlib-ng (2.0.4-0.1) testing; urgency=medium
 
   * New upstream release
