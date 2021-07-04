@@ -218,6 +218,7 @@ static void __attribute__((constructor)) adler32_stub_init() {
 static void __attribute__((constructor)) chunksize_stub_init(void) {
     // Initialize default
     functable.chunksize = &chunksize_c;
+    cpu_check_features();
 
 #ifdef X86_SSE2_CHUNKSET
 # if !defined(__x86_64__) && !defined(_M_X64) && !defined(X86_NOCHECK_SSE2)
