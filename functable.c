@@ -172,11 +172,10 @@ Z_INTERNAL void dummy_linker_glue_x(void) {}
 Z_INTERNAL struct functable_s functable = { 0 };
 
 /* stub functions */
-Z_INTERNAL uint32_t update_hash_stub(deflate_state *const s, uint32_t h, uint32_t val) {
+static void __attribute__((constructor)) update_hash_stub() {
     // Initialize default
 
     functable.update_hash = &update_hash_c;
-    cpu_check_features();
 
 #ifdef X86_SSE42_CRC_HASH
     if (x86_cpu_has_sse42)
@@ -185,8 +184,6 @@ Z_INTERNAL uint32_t update_hash_stub(deflate_state *const s, uint32_t h, uint32_
     if (arm_cpu_has_crc32)
         functable.update_hash = &update_hash_acle;
 #endif
-
-    return functable.update_hash(s, h, val);
 }
 
 static void __attribute__((constructor)) insert_string_stub() {
@@ -267,7 +264,6 @@ static void __attribute__((constructor)) adler32_stub_init() {
 static void __attribute__((constructor)) chunksize_stub_init(void) {
     // Initialize default
     functable.chunksize = &chunksize_c;
-    cpu_check_features();
 
 #ifdef X86_SSE2_CHUNKSET
 # if !defined(__x86_64__) && !defined(_M_X64) && !defined(X86_NOCHECK_SSE2)
@@ -484,7 +480,7 @@ static void __attribute__((constructor)) longest_match_stub_init() {
 #endif
 }
 
-Z_INTERNAL uint32_t longest_match_slow_stub(deflate_state *const s, Pos cur_match) {
+static void __attribute__((constructor)) longest_match_slow_stub() {
 
     functable.longest_match_slow = &longest_match_slow_c;
 
@@ -505,8 +501,6 @@ Z_INTERNAL uint32_t longest_match_slow_stub(deflate_state *const s, Pos cur_matc
         functable.longest_match_slow = &longest_match_slow_unaligned_avx2;
 #  endif
 #endif
-
-    return functable.longest_match_slow(s, cur_match);
 }
 
 #if defined(_MSC_VER)
