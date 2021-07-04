@@ -19,6 +19,12 @@ Z_INTERNAL block_state deflate_slow(deflate_state *s, int flush) {
     int bflush;              /* set if current block must be flushed */
     int64_t dist;
     uint32_t match_len;
+    match_func longest_match;
+
+    if (s->max_chain_length <= 1024)
+        longest_match = functable.longest_match;
+    else
+        longest_match = functable.longest_match_slow;
 
     /* Process the input block. */
     for (;;) {
@@ -41,7 +47,7 @@ Z_INTERNAL block_state deflate_slow(deflate_state *s, int flush) {
          */
         hash_head = 0;
         if (LIKELY(s->lookahead >= WANT_MIN_MATCH)) {
-            hash_head = functable.quick_insert_string(s, s->strstart);
+            hash_head = s->quick_insert_string(s, s->strstart);
         }
 
         /* Find the longest match, discarding those <= prev_length.
@@ -55,7 +61,7 @@ Z_INTERNAL block_state deflate_slow(deflate_state *s, int flush) {
              * of window index 0 (in particular we have to avoid a match
              * of the string with itself at the start of the input file).
              */
-            match_len = functable.longest_match(s, hash_head);
+            match_len = longest_match(s, hash_head);
             /* longest_match() sets match_start */
 
             if (match_len <= 5 && (s->strategy == Z_FILTERED)) {
@@ -68,8 +74,8 @@ Z_INTERNAL block_state deflate_slow(deflate_state *s, int flush) {
         /* If there was a match at the previous step and the current
          * match is not better, output the previous match:
          */
-        if (s->prev_length >= WANT_MIN_MATCH && match_len <= s->prev_length) {
-            unsigned int max_insert = s->strstart + s->lookahead - WANT_MIN_MATCH;
+        if (s->prev_length >= STD_MIN_MATCH && match_len <= s->prev_length) {
+            unsigned int max_insert = s->strstart + s->lookahead - STD_MIN_MATCH;
             /* Do not insert strings in hash table beyond this. */
 
             check_match(s, s->strstart-1, s->prev_match, s->prev_length);
@@ -81,15 +87,15 @@ Z_INTERNAL block_state deflate_slow(deflate_state *s, int flush) {
              * enough lookahead, the last two strings are not inserted in
              * the hash table.
              */
-            s->lookahead -= s->prev_length-1;
+            s->prev_length -= 1;
+            s->lookahead -= s->prev_length;
 
-            unsigned int mov_fwd = s->prev_length - 2;
+            unsigned int mov_fwd = s->prev_length - 1;
             if (max_insert > s->strstart) {
                 unsigned int insert_cnt = mov_fwd;
                 if (UNLIKELY(insert_cnt > max_insert - s->strstart))
                     insert_cnt = max_insert - s->strstart;
-
-                functable.insert_string(s, s->strstart + 1, insert_cnt);
+                s->insert_string(s, s->strstart + 1, insert_cnt);
             }
             s->prev_length = 0;
             s->match_available = 0;

@@ -100,9 +100,6 @@ const char PREFIX(deflate_copyright)[] = " deflate 1.2.11.f Copyright 1995-2016 
 /* ===========================================================================
  *  Function prototypes.
  */
-typedef block_state (*compress_func) (deflate_state *s, int flush);
-/* Compression function. Returns the block state after the call. */
-
 static int deflateStateCheck      (PREFIX3(stream) *strm);
 Z_INTERNAL block_state deflate_stored(deflate_state *s, int flush);
 Z_INTERNAL block_state deflate_fast  (deflate_state *s, int flush);
@@ -113,6 +110,7 @@ Z_INTERNAL block_state deflate_medium(deflate_state *s, int flush);
 Z_INTERNAL block_state deflate_slow  (deflate_state *s, int flush);
 Z_INTERNAL block_state deflate_rle   (deflate_state *s, int flush);
 Z_INTERNAL block_state deflate_huff  (deflate_state *s, int flush);
+static void lm_set_level         (deflate_state *s, int level);
 static void lm_init              (deflate_state *s);
 Z_INTERNAL unsigned read_buf  (PREFIX3(stream) *strm, unsigned char *buf, unsigned size);
 
@@ -121,6 +119,10 @@ extern void crc_reset(deflate_state *const s);
 extern void crc_finalize(deflate_state *const s);
 #endif
 extern void copy_with_crc(PREFIX3(stream) *strm, unsigned char *dst, unsigned long size);
+
+extern uint32_t update_hash_roll        (deflate_state *const s, uint32_t h, uint32_t val);
+extern void     insert_string_roll      (deflate_state *const s, uint32_t str, uint32_t count);
+extern Pos      quick_insert_string_roll(deflate_state *const s, uint32_t str);
 
 /* ===========================================================================
  * Local data
@@ -597,11 +599,8 @@ int32_t Z_EXPORT PREFIX(deflateParams)(PREFIX3(stream) *strm, int32_t level, int
             }
             s->matches = 0;
         }
-        s->level = level;
-        s->max_lazy_match   = configuration_table[level].max_lazy;
-        s->good_match       = configuration_table[level].good_length;
-        s->nice_match       = configuration_table[level].nice_length;
-        s->max_chain_length = configuration_table[level].max_chain;
+
+        lm_set_level(s, level);
     }
     s->strategy = strategy;
     return Z_OK;
@@ -1137,6 +1136,31 @@ Z_INTERNAL unsigned read_buf(PREFIX3(stream) *strm, unsigned char *buf, unsigned
 }
 
 /* ===========================================================================
+ * Set longest match variables based on level configuration
+ */
+static void lm_set_level(deflate_state *s, int level) {
+    s->max_lazy_match   = configuration_table[level].max_lazy;
+    s->good_match       = configuration_table[level].good_length;
+    s->nice_match       = configuration_table[level].nice_length;
+    s->max_chain_length = configuration_table[level].max_chain;
+
+    /* Use rolling hash for deflate_slow algorithm with level 9. It allows us to
+     * properly lookup different hash chains to speed up longest_match search. Since hashing
+     * method changes depending on the level we cannot put this into functable. */
+    if (s->max_chain_length > 1024) {
+        s->update_hash = &update_hash_roll;
+        s->insert_string = &insert_string_roll;
+        s->quick_insert_string = &quick_insert_string_roll;
+    } else {
+        s->update_hash = functable.update_hash;
+        s->insert_string = functable.insert_string;
+        s->quick_insert_string = functable.quick_insert_string;
+    }
+
+    s->level = level;
+}
+
+/* ===========================================================================
  * Initialize the "longest match" routines for a new zlib stream
  */
 static void lm_init(deflate_state *s) {
@@ -1146,10 +1170,7 @@ static void lm_init(deflate_state *s) {
 
     /* Set the default configuration parameters:
      */
-    s->max_lazy_match   = configuration_table[s->level].max_lazy;
-    s->good_match       = configuration_table[s->level].good_length;
-    s->nice_match       = configuration_table[s->level].nice_length;
-    s->max_chain_length = configuration_table[s->level].max_chain;
+    lm_set_level(s, s->level);
 
     s->strstart = 0;
     s->block_start = 0;
@@ -1158,6 +1179,7 @@ static void lm_init(deflate_state *s) {
     s->prev_length = 0;
     s->match_available = 0;
     s->match_start = 0;
+    s->ins_h = 0;
 }
 
 /* ===========================================================================
@@ -1221,8 +1243,11 @@ void Z_INTERNAL fill_window(deflate_state *s) {
         /* Initialize the hash value now that we have some input: */
         if (s->lookahead + s->insert >= STD_MIN_MATCH) {
             unsigned int str = s->strstart - s->insert;
-            if (str >= 1)
-                functable.quick_insert_string(s, str + 2 - STD_MIN_MATCH);
+            if (UNLIKELY(s->max_chain_length > 1024)) {
+                s->ins_h = s->update_hash(s, s->window[str], s->window[str+1]);
+            } else if (str >= 1) {
+                s->quick_insert_string(s, str + 2 - STD_MIN_MATCH);
+            }
             unsigned int count;
             if (UNLIKELY(s->lookahead == 1)) {
                 count = s->insert - 1;
@@ -1230,7 +1255,7 @@ void Z_INTERNAL fill_window(deflate_state *s) {
                 count = s->insert;
             }
             if (count > 0) {
-                functable.insert_string(s, str, count);
+                s->insert_string(s, str, count);
                 s->insert -= count;
             }
         }

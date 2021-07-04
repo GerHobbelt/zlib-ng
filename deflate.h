@@ -65,7 +65,9 @@
 /* Stream status */
 
 #define HASH_BITS    16u           /* log2(HASH_SIZE) */
-#define HASH_SIZE 65536u           /* number of elements in hash table */
+#ifndef HASH_SIZE
+#  define HASH_SIZE 65536u         /* number of elements in hash table */
+#endif
 #define HASH_MASK (HASH_SIZE - 1u) /* HASH_SIZE-1 */
 
 
@@ -99,8 +101,14 @@ typedef uint16_t Pos;
 /* A Pos is an index in the character window. We use short instead of int to
  * save space in the various tables.
  */
+/* Type definitions for hash callbacks */
+typedef struct internal_state deflate_state;
 
-typedef struct internal_state {
+typedef uint32_t (* update_hash_cb)        (deflate_state *const s, uint32_t h, uint32_t val);
+typedef void     (* insert_string_cb)      (deflate_state *const s, uint32_t str, uint32_t count);
+typedef Pos      (* quick_insert_string_cb)(deflate_state *const s, uint32_t str);
+
+struct internal_state {
     PREFIX3(stream)      *strm;            /* pointer back to this zlib stream */
     unsigned char        *pending_buf;     /* output still pending */
     unsigned char        *pending_out;     /* next pending byte to output to the stream */
@@ -155,6 +163,8 @@ typedef struct internal_state {
 
     Pos *head; /* Heads of the hash chains or 0. */
 
+    uint32_t ins_h; /* hash index of string to be inserted */
+
     int block_start;
     /* Window position at the beginning of the current output block. Gets
      * negative when the window is moved backwards.
@@ -185,6 +195,12 @@ typedef struct internal_state {
      * greater than this length. This saves time but degrades compression.
      * max_insert_length is used only for compression levels <= 3.
      */
+
+    update_hash_cb          update_hash;
+    insert_string_cb        insert_string;
+    quick_insert_string_cb  quick_insert_string;
+    /* Hash function callbacks that can be configured depending on the deflate
+     * algorithm being used */
 
     int level;    /* compression level (1..9) */
     int strategy; /* favor or force Huffman coding*/
@@ -267,7 +283,7 @@ typedef struct internal_state {
 
     /* Reserved for future use and alignment purposes */
     int32_t reserved[11];
-} ALIGNED_(8) deflate_state;
+} ALIGNED_(8);
 
 typedef enum {
     need_more,      /* block not completed, need more input or more output */

@@ -76,6 +76,7 @@ option(ZLIB_ENABLE_TESTS "Build test binaries" ON)
 option(ZLIB_DUAL_LINK "Dual link tests against system zlib" OFF)
 option(WITH_FUZZERS "Build test/fuzz" OFF)
 option(WITH_OPTIM "Build with optimisation" ON)
+option(WITH_REDUCED_MEM "Reduced memory usage for special cases (reduces performance)" OFF)
 option(WITH_NEW_STRATEGIES "Use new strategies" ON)
 option(WITH_NATIVE_INSTRUCTIONS
     "Instruct the compiler to use the full instruction set on this host (gcc/clang -march=native)" OFF)
@@ -109,6 +110,7 @@ option(INSTALL_UTILS "Copy minigzip and minideflate during install" OFF)
 
 mark_as_advanced(FORCE
     ZLIB_DUAL_LINK
+    WITH_REDUCED_MEM
     WITH_ACLE WITH_NEON
     WITH_DFLTCC_DEFLATE
     WITH_DFLTCC_INFLATE
@@ -469,6 +471,13 @@ if(WITH_INFLATE_ALLOW_INVALID_DIST)
     add_definitions(-DINFLATE_ALLOW_INVALID_DISTANCE_TOOFAR_ARRR)
     message(STATUS "Inflate zero data for invalid distances enabled")
 endif()
+#
+# Enable reduced memory configuration
+#
+if(WITH_REDUCED_MEM)
+    add_definitions(-DHASH_SIZE=32768u -DGZBUFSIZE=8192)
+    message(STATUS "Configured for reduced memory environment")
+endif()
 
 
 set(ZLIB_ARCH_SRCS)
@@ -597,10 +606,11 @@ if(WITH_OPTIM)
                 add_definitions(-DPOWER8)
                 add_definitions(-DPOWER_FEATURES)
                 add_definitions(-DPOWER8_VSX_ADLER32)
+                add_definitions(-DPOWER8_VSX_CHUNKSET)
                 add_definitions(-DPOWER8_VSX_SLIDEHASH)
                 list(APPEND ZLIB_ARCH_HDRS ${ARCHDIR}/power.h)
                 list(APPEND ZLIB_ARCH_SRCS ${ARCHDIR}/power.c)
-                set(POWER8_SRCS ${ARCHDIR}/adler32_power8.c ${ARCHDIR}/slide_power8.c)
+                set(POWER8_SRCS ${ARCHDIR}/adler32_power8.c ${ARCHDIR}/chunkset_power8.c ${ARCHDIR}/slide_power8.c)
                 list(APPEND ZLIB_ARCH_SRCS ${POWER8_SRCS})
                 set_property(SOURCE ${POWER8_SRCS} PROPERTY COMPILE_FLAGS "${POWER8FLAG} ${NOLTOFLAG}")
             else()
@@ -821,6 +831,7 @@ set(ZLIB_SRCS
     inflate.c
     inftrees.c
     insert_string.c
+    insert_string_roll.c
     trees.c
     uncompr.c
     zutil.c
