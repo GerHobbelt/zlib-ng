@@ -1,5 +1,7 @@
+#ifndef ZUTIL_H_
+#define ZUTIL_H_
 /* zutil.h -- internal interface and configuration of the compression library
- * Copyright (C) 1995-2012 Jean-loup Gailly.
+ * Copyright (C) 1995-2016 Jean-loup Gailly, Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
@@ -8,49 +10,41 @@
    subject to change. Applications should only use zlib.h.
  */
 
-/* @(#) $Id$ */
-
-#ifndef ZUTIL_H
-#define ZUTIL_H
-
-#ifdef HAVE_HIDDEN
-#  define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+#if defined(HAVE_VISIBILITY_INTERNAL)
+#  define Z_INTERNAL __attribute__((visibility ("internal")))
+#elif defined(HAVE_VISIBILITY_HIDDEN)
+#  define Z_INTERNAL __attribute__((visibility ("hidden")))
 #else
-#  define ZLIB_INTERNAL
+#  define Z_INTERNAL
 #endif
 
-#include "zlib.h"
-
-#if defined(STDC) && !defined(Z_SOLO)
-#  if !(defined(_WIN32_WCE) && defined(_MSC_VER))
-#    include <stddef.h>
-#  endif
-#  include <string.h>
-#  include <stdlib.h>
+#ifndef __cplusplus
+#  define Z_REGISTER register
+#else
+#  define Z_REGISTER
 #endif
 
-#ifdef Z_SOLO
-   typedef long ptrdiff_t;  /* guess -- will be caught if guess is wrong */
+#include <stddef.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdint.h>
+#ifdef ZLIB_COMPAT
+#  include "zlib.h"
+#else
+#  include "zlib-ng.h"
 #endif
+#include "zbuild.h"
 
-#ifndef local
-#  define local static
-#endif
-/* compile with -Dlocal if your debugger can't find static symbols */
+typedef unsigned char uch; /* Included for compatibility with external code only */
+typedef uint16_t ush;      /* Included for compatibility with external code only */
+typedef unsigned long ulg;
 
-typedef unsigned char  uch;
-typedef uch FAR uchf;
-typedef unsigned short ush;
-typedef ush FAR ushf;
-typedef unsigned long  ulg;
-
-extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
+extern z_const char * const PREFIX(z_errmsg)[10]; /* indexed by 2-zlib_error */
 /* (size given to avoid silly warnings with Visual C++) */
 
-#define ERR_MSG(err) z_errmsg[Z_NEED_DICT-(err)]
+#define ERR_MSG(err) PREFIX(z_errmsg)[Z_NEED_DICT-(err)]
 
-#define ERR_RETURN(strm,err) \
-  return (strm->msg = ERR_MSG(err), (err))
+#define ERR_RETURN(strm, err) return (strm->msg = ERR_MSG(err), (err))
 /* To be used only when the state is known to be valid */
 
         /* common constants */
@@ -72,181 +66,194 @@ extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
 #define DYN_TREES    2
 /* The three kinds of block type */
 
-#define MIN_MATCH  3
-#define MAX_MATCH  258
-/* The minimum and maximum match lengths */
+#define STD_MIN_MATCH  3
+#define STD_MAX_MATCH  258
+/* The minimum and maximum match lengths mandated by the deflate standard */
+
+#define WANT_MIN_MATCH  4
+/* The minimum wanted match length, affects deflate_quick, deflate_fast, deflate_medium and deflate_slow  */
 
 #define PRESET_DICT 0x20 /* preset dictionary flag in zlib header */
 
+#define ADLER32_INITIAL_VALUE 1 /* initial adler-32 hash value */
+
         /* target dependencies */
 
-#if defined(MSDOS) || (defined(WINDOWS) && !defined(WIN32))
-#  define OS_CODE  0x00
-#  ifndef Z_SOLO
-#    if defined(__TURBOC__) || defined(__BORLANDC__)
-#      if (__STDC__ == 1) && (defined(__LARGE__) || defined(__COMPACT__))
-         /* Allow compilation with ANSI keywords only enabled */
-         void _Cdecl farfree( void *block );
-         void *_Cdecl farmalloc( unsigned long nbytes );
-#      else
-#        include <alloc.h>
-#      endif
-#    else /* MSC or DJGPP */
-#      include <malloc.h>
-#    endif
-#  endif
-#endif
-
 #ifdef AMIGA
-#  define OS_CODE  0x01
+#  define OS_CODE  1
 #endif
 
-#if defined(VAXC) || defined(VMS)
-#  define OS_CODE  0x02
-#  define F_OPEN(name, mode) \
-     fopen((name), (mode), "mbc=60", "ctx=stm", "rfm=fix", "mrs=512")
+#ifdef __370__
+#  if __TARGET_LIB__ < 0x20000000
+#    define OS_CODE 4
+#  elif __TARGET_LIB__ < 0x40000000
+#    define OS_CODE 11
+#  else
+#    define OS_CODE 8
+#  endif
 #endif
 
 #if defined(ATARI) || defined(atarist)
-#  define OS_CODE  0x05
+#  define OS_CODE  5
 #endif
 
 #ifdef OS2
-#  define OS_CODE  0x06
-#  if defined(M_I86) && !defined(Z_SOLO)
-#    include <malloc.h>
-#  endif
+#  define OS_CODE  6
 #endif
 
 #if defined(MACOS) || defined(TARGET_OS_MAC)
-#  define OS_CODE  0x07
-#  ifndef Z_SOLO
-#    if defined(__MWERKS__) && __dest_os != __be_os && __dest_os != __win32_os
-#      include <unix.h> /* for fdopen */
-#    else
-#      ifndef fdopen
-#        define fdopen(fd,mode) NULL /* No fdopen() */
-#      endif
-#    endif
-#  endif
+#  define OS_CODE  7
 #endif
 
-#ifdef TOPS20
-#  define OS_CODE  0x0a
+#ifdef __acorn
+#  define OS_CODE 13
 #endif
 
-#ifdef WIN32
-#  ifndef __CYGWIN__  /* Cygwin is Unix, not Win32 */
-#    define OS_CODE  0x0b
-#  endif
+#if defined(_WIN32) && !defined(__CYGWIN__)
+#  define OS_CODE  10
 #endif
 
-#ifdef __50SERIES /* Prime/PRIMOS */
-#  define OS_CODE  0x0f
+#ifdef __APPLE__
+#  define OS_CODE 19
 #endif
 
-#if defined(_BEOS_) || defined(RISCOS)
-#  define fdopen(fd,mode) NULL /* No fdopen() */
+#if (defined(_MSC_VER) && (_MSC_VER > 600))
+#  define fdopen(fd, type)  _fdopen(fd, type)
 #endif
 
-#if (defined(_MSC_VER) && (_MSC_VER > 600)) && !defined __INTERIX
-#  if defined(_WIN32_WCE)
-#    define fdopen(fd,mode) NULL /* No fdopen() */
-#    ifndef _PTRDIFF_T_DEFINED
-       typedef int ptrdiff_t;
-#      define _PTRDIFF_T_DEFINED
-#    endif
-#  else
-#    define fdopen(fd,type)  _fdopen(fd,type)
-#  endif
-#endif
-
-#if defined(__BORLANDC__) && !defined(MSDOS)
-  #pragma warn -8004
-  #pragma warn -8008
-  #pragma warn -8066
-#endif
-
-/* provide prototypes for these when building zlib without LFS */
-#if !defined(_WIN32) && (!defined(_LARGEFILE64_SOURCE) || _LFS64_LARGEFILE-0 == 0)
-    ZEXTERN uLong ZEXPORT adler32_combine64 OF((uLong, uLong, z_off_t));
-    ZEXTERN uLong ZEXPORT crc32_combine64 OF((uLong, uLong, z_off_t));
+/* MS Visual Studio does not allow inline in C, only C++.
+   But it provides __inline instead, so use that. */
+#if defined(_MSC_VER) && !defined(inline) && !defined(__cplusplus)
+#  define inline __inline
 #endif
 
         /* common defaults */
 
 #ifndef OS_CODE
-#  define OS_CODE  0x03  /* assume Unix */
-#endif
-
-#ifndef F_OPEN
-#  define F_OPEN(name, mode) fopen((name), (mode))
+#  define OS_CODE  3  /* assume Unix */
 #endif
 
          /* functions */
 
-#if defined(pyr) || defined(Z_SOLO)
-#  define NO_MEMCPY
-#endif
-#if defined(SMALL_MEDIUM) && !defined(_MSC_VER) && !defined(__SC__)
- /* Use our own functions for small and medium model with MSC <= 5.0.
-  * You may have to use the same strategy for Borland C (untested).
-  * The __SC__ check is for Symantec.
-  */
-#  define NO_MEMCPY
-#endif
-#if defined(STDC) && !defined(HAVE_MEMCPY) && !defined(NO_MEMCPY)
-#  define HAVE_MEMCPY
-#endif
-#ifdef HAVE_MEMCPY
-#  ifdef SMALL_MEDIUM /* MSDOS small or medium model */
-#    define zmemcpy _fmemcpy
-#    define zmemcmp _fmemcmp
-#    define zmemzero(dest, len) _fmemset(dest, 0, len)
-#  else
-#    define zmemcpy memcpy
-#    define zmemcmp memcmp
-#    define zmemzero(dest, len) memset(dest, 0, len)
-#  endif
-#else
-   void ZLIB_INTERNAL zmemcpy OF((Bytef* dest, const Bytef* source, uInt len));
-   int ZLIB_INTERNAL zmemcmp OF((const Bytef* s1, const Bytef* s2, uInt len));
-   void ZLIB_INTERNAL zmemzero OF((Bytef* dest, uInt len));
-#endif
-
 /* Diagnostic functions */
-#ifdef DEBUG
+#ifdef ZLIB_DEBUG
 #  include <stdio.h>
-   extern int ZLIB_INTERNAL z_verbose;
-   extern void ZLIB_INTERNAL z_error OF((char *m));
-#  define Assert(cond,msg) {if(!(cond)) z_error(msg);}
-#  define Trace(x) {if (z_verbose>=0) fprintf x ;}
-#  define Tracev(x) {if (z_verbose>0) fprintf x ;}
-#  define Tracevv(x) {if (z_verbose>1) fprintf x ;}
-#  define Tracec(c,x) {if (z_verbose>0 && (c)) fprintf x ;}
-#  define Tracecv(c,x) {if (z_verbose>1 && (c)) fprintf x ;}
+   extern int Z_INTERNAL z_verbose;
+   extern void Z_INTERNAL z_error(char *m);
+#  define Assert(cond, msg) {if (!(cond)) z_error(msg);}
+#  define Trace(x) {if (z_verbose >= 0) fprintf x;}
+#  define Tracev(x) {if (z_verbose > 0) fprintf x;}
+#  define Tracevv(x) {if (z_verbose > 1) fprintf x;}
+#  define Tracec(c, x) {if (z_verbose > 0 && (c)) fprintf x;}
+#  define Tracecv(c, x) {if (z_verbose > 1 && (c)) fprintf x;}
 #else
-#  define Assert(cond,msg)
+#  define Assert(cond, msg)
 #  define Trace(x)
 #  define Tracev(x)
 #  define Tracevv(x)
-#  define Tracec(c,x)
-#  define Tracecv(c,x)
+#  define Tracec(c, x)
+#  define Tracecv(c, x)
 #endif
 
-#ifndef Z_SOLO
-   voidpf ZLIB_INTERNAL zcalloc OF((voidpf opaque, unsigned items,
-                                    unsigned size));
-   void ZLIB_INTERNAL zcfree  OF((voidpf opaque, voidpf ptr));
+void Z_INTERNAL *zng_calloc(void *opaque, unsigned items, unsigned size);
+void Z_INTERNAL   zng_cfree(void *opaque, void *ptr);
+
+#define ZALLOC(strm, items, size) (*((strm)->zalloc))((strm)->opaque, (items), (size))
+#define ZFREE(strm, addr)         (*((strm)->zfree))((strm)->opaque, (void *)(addr))
+#define TRY_FREE(s, p)            {if (p) ZFREE(s, p);}
+
+/* Reverse the bytes in a value. Use compiler intrinsics when
+   possible to take advantage of hardware implementations. */
+#if defined(_MSC_VER) && (_MSC_VER >= 1300)
+#  pragma intrinsic(_byteswap_ulong)
+#  define ZSWAP16(q) _byteswap_ushort(q)
+#  define ZSWAP32(q) _byteswap_ulong(q)
+#  define ZSWAP64(q) _byteswap_uint64(q)
+
+#elif defined(__Clang__) || (defined(__GNUC__) && \
+        (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8)))
+#  define ZSWAP16(q) __builtin_bswap16(q)
+#  define ZSWAP32(q) __builtin_bswap32(q)
+#  define ZSWAP64(q) __builtin_bswap64(q)
+
+#elif defined(__GNUC__) && (__GNUC__ >= 2) && defined(__linux__)
+#  include <byteswap.h>
+#  define ZSWAP16(q) bswap_16(q)
+#  define ZSWAP32(q) bswap_32(q)
+#  define ZSWAP64(q) bswap_64(q)
+
+#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+#  include <sys/endian.h>
+#  define ZSWAP16(q) bswap16(q)
+#  define ZSWAP32(q) bswap32(q)
+#  define ZSWAP64(q) bswap64(q)
+#elif defined(__OpenBSD__)
+#  include <sys/endian.h>
+#  define ZSWAP16(q) swap16(q)
+#  define ZSWAP32(q) swap32(q)
+#  define ZSWAP64(q) swap64(q)
+#elif defined(__INTEL_COMPILER)
+/* ICC does not provide a two byte swap. */
+#  define ZSWAP16(q) ((((q) & 0xff) << 8) | (((q) & 0xff00) >> 8))
+#  define ZSWAP32(q) _bswap(q)
+#  define ZSWAP64(q) _bswap64(q)
+
+#else
+#  define ZSWAP16(q) ((((q) & 0xff) << 8) | (((q) & 0xff00) >> 8))
+#  define ZSWAP32(q) ((((q) >> 24) & 0xff) + (((q) >> 8) & 0xff00) + \
+                     (((q) & 0xff00) << 8) + (((q) & 0xff) << 24))
+#  define ZSWAP64(q)                           \
+         (((q & 0xFF00000000000000u) >> 56u) | \
+          ((q & 0x00FF000000000000u) >> 40u) | \
+          ((q & 0x0000FF0000000000u) >> 24u) | \
+          ((q & 0x000000FF00000000u) >> 8u)  | \
+          ((q & 0x00000000FF000000u) << 8u)  | \
+          ((q & 0x0000000000FF0000u) << 24u) | \
+          ((q & 0x000000000000FF00u) << 40u) | \
+          ((q & 0x00000000000000FFu) << 56u))
 #endif
 
-#define ZALLOC(strm, items, size) \
-           (*((strm)->zalloc))((strm)->opaque, (items), (size))
-#define ZFREE(strm, addr)  (*((strm)->zfree))((strm)->opaque, (voidpf)(addr))
-#define TRY_FREE(s, p) {if (p) ZFREE(s, p);}
+/* Only enable likely/unlikely if the compiler is known to support it */
+#if (defined(__GNUC__) && (__GNUC__ >= 3)) || defined(__INTEL_COMPILER) || defined(__Clang__)
+#  define LIKELY_NULL(x)        __builtin_expect((x) != 0, 0)
+#  define LIKELY(x)             __builtin_expect(!!(x), 1)
+#  define UNLIKELY(x)           __builtin_expect(!!(x), 0)
+#  define PREFETCH_L1(addr)     __builtin_prefetch(addr, 0, 3)
+#  define PREFETCH_L2(addr)     __builtin_prefetch(addr, 0, 2)
+#  define PREFETCH_RW(addr)     __builtin_prefetch(addr, 1, 2)
+#elif defined(__WIN__)
+#  include <xmmintrin.h>
+#  define LIKELY_NULL(x)        x
+#  define LIKELY(x)             x
+#  define UNLIKELY(x)           x
+#  define PREFETCH_L1(addr)     _mm_prefetch((char *) addr, _MM_HINT_T0)
+#  define PREFETCH_L2(addr)     _mm_prefetch((char *) addr, _MM_HINT_T1)
+#  define PREFETCH_RW(addr)     _mm_prefetch((char *) addr, _MM_HINT_T1)
+#else
+#  define LIKELY_NULL(x)        x
+#  define LIKELY(x)             x
+#  define UNLIKELY(x)           x
+#  define PREFETCH_L1(addr)     addr
+#  define PREFETCH_L2(addr)     addr
+#  define PREFETCH_RW(addr)     addr
+#endif /* (un)likely */
 
-/* Reverse the bytes in a 32-bit value */
-#define ZSWAP32(q) ((((q) >> 24) & 0xff) + (((q) >> 8) & 0xff00) + \
-                    (((q) & 0xff00) << 8) + (((q) & 0xff) << 24))
+#if defined(_MSC_VER)
+#  define ALIGNED_(x) __declspec(align(x))
+#else
+#  if defined(__GNUC__)
+#    define ALIGNED_(x) __attribute__ ((aligned(x)))
+#  endif
+#endif
 
-#endif /* ZUTIL_H */
+#if defined(X86_FEATURES)
+#  include "arch/x86/x86.h"
+#elif defined(ARM_FEATURES)
+#  include "arch/arm/arm.h"
+#elif defined(POWER_FEATURES)
+#  include "arch/power/power.h"
+#elif defined(S390_FEATURES)
+#  include "arch/s390/s390.h"
+#endif
+
+#endif /* ZUTIL_H_ */
