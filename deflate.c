@@ -193,8 +193,6 @@ int32_t Z_EXPORT PREFIX(deflateInit2_)(PREFIX3(stream) *strm, int32_t level, int
     int wrap = 1;
     static const char my_version[] = PREFIX2(VERSION);
 
-    cpu_check_features();
-
     if (version == NULL || version[0] != my_version[0] || stream_size != sizeof(PREFIX3(stream))) {
         return Z_VERSION_ERROR;
     }
