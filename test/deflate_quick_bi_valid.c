@@ -13,10 +13,10 @@
 
 
 #if defined(BUILD_MONOLITHIC)
-#define main()      zlib_deflate_quick_bi_valid_test_main()
+#define main(void)      zlib_deflate_quick_bi_valid_test_main(void)
 #endif
 
-int main()
+int main(void)
 {
     PREFIX3(stream) strm;
     memset(&strm, 0, sizeof(strm));

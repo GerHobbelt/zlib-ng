@@ -17,6 +17,9 @@
 #include "../../zutil.h"
 #include "../../inftrees.h"
 #include "../../inflate.h"
+
+#ifndef _MSC_VER  // TODO: make this a proper check; now it's only a quick hack
+
 #include "dfltcc_inflate.h"
 #include "dfltcc_detail.h"
 
@@ -135,3 +138,5 @@ int Z_INTERNAL dfltcc_inflate_disable(PREFIX3(streamp) strm) {
     memset(&dfltcc_state->af, 0, sizeof(dfltcc_state->af));
     return 0;
 }
+
+#endif

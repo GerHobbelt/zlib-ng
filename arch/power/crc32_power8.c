@@ -25,9 +25,12 @@
  * This code uses gcc vector builtins instead using assembly directly.
  */
 
+#include "zutil.h"
+
+#if defined(PPC_FEATURES) || defined(POWER_FEATURES)
+
 #include <altivec.h>
 #include "zendian.h"
-#include "zutil.h"
 
 #include "crc32_constants.h"
 #include "crc32_tbl.h"
@@ -587,3 +590,5 @@ static unsigned int ALIGNED_(32) __crc32_vpmsum(unsigned int crc, const void* p,
     return v0[1];
 #endif
 }
+
+#endif

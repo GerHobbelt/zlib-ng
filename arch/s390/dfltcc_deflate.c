@@ -17,6 +17,9 @@
 #include "../../zutil.h"
 #include "../../deflate.h"
 #include "../../trees_emit.h"
+
+#ifndef _MSC_VER  // TODO: make this a proper check; now it's only a quick hack
+
 #include "dfltcc_deflate.h"
 #include "dfltcc_detail.h"
 
@@ -404,3 +407,5 @@ int Z_INTERNAL dfltcc_deflate_get_dictionary(PREFIX3(streamp) strm, unsigned cha
         *dict_length = param->hl;
     return Z_OK;
 }
+
+#endif

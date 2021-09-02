@@ -2,14 +2,15 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
+#include "../../zbuild.h"
+#include "../../zutil.h"
+
 #ifdef ARM_NEON_CHUNKSET
 #ifdef _M_ARM64
 #  include <arm64_neon.h>
 #else
 #  include <arm_neon.h>
 #endif
-#include "../../zbuild.h"
-#include "../../zutil.h"
 
 typedef uint8x16_t chunk_t;
 

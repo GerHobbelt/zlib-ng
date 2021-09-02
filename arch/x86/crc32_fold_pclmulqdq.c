@@ -16,10 +16,11 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
-#ifdef X86_PCLMULQDQ_CRC
 #include "../../zutil.h"
 
+#ifdef X86_PCLMULQDQ_CRC
 #include <inttypes.h>
+
 #include <immintrin.h>
 #include <wmmintrin.h>
 

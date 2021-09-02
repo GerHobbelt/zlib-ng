@@ -10,9 +10,9 @@
 
 #include "../../adler32_p.h"
 
-#include <immintrin.h>
-
 #ifdef X86_AVX2_ADLER32
+
+#include <immintrin.h>
 
 Z_INTERNAL uint32_t adler32_avx2(uint32_t adler, const unsigned char *buf, size_t len) {
     uint32_t sum2;

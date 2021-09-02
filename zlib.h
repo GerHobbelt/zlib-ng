@@ -1,7 +1,10 @@
 #ifndef ZLIB_H_
 #define ZLIB_H_
 
+
 #error "Deprecated -- please use zlib-ng.h instead!"
+
+
 
 /* zlib.h -- interface of the 'zlib-ng' compression library
    Forked from and compatible with zlib 1.2.11

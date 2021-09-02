@@ -13,10 +13,10 @@
 
 
 #if defined(BUILD_MONOLITHIC)
-#define main()      zlib_deflate_quick_block_open_test_main()
+#define main(void)      zlib_deflate_quick_block_open_test_main(void)
 #endif
 
-int main()
+int main(void)
 {
     PREFIX3(stream) strm;
 

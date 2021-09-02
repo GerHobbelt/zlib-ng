@@ -8,14 +8,15 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
+#include "../../zbuild.h"
+#include "../../deflate.h"
+
 #if defined(ARM_NEON_SLIDEHASH)
 #ifdef _M_ARM64
 #  include <arm64_neon.h>
 #else
 #  include <arm_neon.h>
 #endif
-#include "../../zbuild.h"
-#include "../../deflate.h"
 
 /* SIMD version of hash_chain rebase */
 static inline void slide_hash_chain(Pos *table, uint32_t entries, uint16_t wsize) {

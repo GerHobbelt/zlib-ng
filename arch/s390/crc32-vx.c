@@ -15,6 +15,8 @@
 #include "../../zutil.h"
 #include "../../crc32_p.h"
 
+#ifndef _MSC_VER   // TODO: make this an explicit check, e.g. defined(HAVE_VECINTRIN_H)
+
 #include <vecintrin.h>
 
 typedef unsigned char uv16qi __attribute__((vector_size(16)));
@@ -220,3 +222,5 @@ uint32_t Z_INTERNAL s390_crc32_vx(uint32_t crc, const unsigned char *buf, uint64
 
     return crc;
 }
+
+#endif

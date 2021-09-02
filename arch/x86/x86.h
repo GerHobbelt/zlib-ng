@@ -6,6 +6,8 @@
 #ifndef CPU_H_
 #define CPU_H_
 
+#include "../../zutil.h"
+
 extern int x86_cpu_has_avx2;
 extern int x86_cpu_has_sse2;
 extern int x86_cpu_has_ssse3;

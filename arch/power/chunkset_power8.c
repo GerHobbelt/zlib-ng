@@ -2,10 +2,11 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
-#ifdef POWER8_VSX_CHUNKSET
-#include <altivec.h>
 #include "zbuild.h"
 #include "zutil.h"
+
+#ifdef POWER8_VSX_CHUNKSET
+#include <altivec.h>
 
 typedef vector unsigned char chunk_t;
 

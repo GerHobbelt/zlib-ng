@@ -10,12 +10,14 @@
    subject to change. Applications should only use zlib.h.
  */
 
+#ifndef Z_INTERNAL
 #if defined(HAVE_VISIBILITY_INTERNAL)
 #  define Z_INTERNAL __attribute__((visibility ("internal")))
 #elif defined(HAVE_VISIBILITY_HIDDEN)
 #  define Z_INTERNAL __attribute__((visibility ("hidden")))
 #else
 #  define Z_INTERNAL
+#endif
 #endif
 
 #ifndef __cplusplus

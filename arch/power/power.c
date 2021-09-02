@@ -4,8 +4,11 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
-#include <sys/auxv.h>
 #include "../../zutil.h"
+
+#if defined(PPC_FEATURES) || defined(POWER_FEATURES)
+
+#include <sys/auxv.h>
 #include "power.h"
 
 Z_INTERNAL int power_cpu_has_altivec = 0;
@@ -28,3 +31,5 @@ void Z_INTERNAL power_check_features(void) {
         power_cpu_has_arch_2_07 = 1;
 #endif
 }
+
+#endif

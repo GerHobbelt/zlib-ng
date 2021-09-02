@@ -36,11 +36,13 @@
  * https://www.ietf.org/rfc/rfc1950.txt
  */
 
+#include "zbuild.h"
+#include "zutil.h"
+
 #ifdef POWER8_VSX_ADLER32
 
 #include <altivec.h>
-#include "zbuild.h"
-#include "zutil.h"
+
 #include "adler32_p.h"
 
 /* Vector across sum unsigned int (saturate).  */

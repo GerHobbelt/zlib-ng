@@ -4,9 +4,11 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
+#include "zutil.h"
+
 #ifdef PPC_VMX_ADLER32
 #include <altivec.h>
-#include "zutil.h"
+
 #include "adler32_p.h"
 
 #define vmx_zero()  (vec_splat_u32(0))
