@@ -648,6 +648,10 @@ if(WITH_OPTIM)
                 add_definitions(-DPOWER8_VSX_CHUNKSET)
                 add_definitions(-DPOWER8_VSX_SLIDEHASH)
                 set(POWER8_SRCS ${ARCHDIR}/adler32_power8.c ${ARCHDIR}/chunkset_power8.c ${ARCHDIR}/slide_hash_power8.c)
+                if("${ARCH}" MATCHES "powerpc64(le)?")
+                    add_definitions(-DPOWER8_VSX_CRC32)
+                    list(APPEND POWER8_SRCS ${ARCHDIR}/crc32_power8.c)
+                endif()
                 list(APPEND ZLIB_ARCH_SRCS ${POWER8_SRCS})
                 set_property(SOURCE ${POWER8_SRCS} PROPERTY COMPILE_FLAGS "${POWER8FLAG} ${NOLTOFLAG}")
             else()
@@ -762,7 +766,7 @@ if(WITH_OPTIM)
             check_pclmulqdq_intrinsics()
             if(HAVE_PCLMULQDQ_INTRIN AND HAVE_SSSE3_INTRIN)
                 add_definitions(-DX86_PCLMULQDQ_CRC)
-                set(PCLMULQDQ_SRCS ${ARCHDIR}/crc_folding.c)
+                set(PCLMULQDQ_SRCS ${ARCHDIR}/crc32_fold_pclmulqdq.c)
                 add_feature_info(PCLMUL_CRC 1 "Support CRC hash generation using PCLMULQDQ, using \"${SSSE3FLAG} ${SSE4FLAG} ${PCLMULFLAG}\"")
                 list(APPEND ZLIB_ARCH_SRCS ${PCLMULQDQ_SRCS})
                 set_property(SOURCE ${PCLMULQDQ_SRCS} PROPERTY COMPILE_FLAGS "${SSSE3FLAG} ${SSE4FLAG} ${PCLMULFLAG} ${NOLTOFLAG}")
@@ -845,6 +849,7 @@ set(ZLIB_PRIVATE_HDRS
     crc32_p.h
     crc32_tbl.h
     crc32_comb_tbl.h
+    crc32_fold.h
     deflate.h
     deflate_p.h
     functable.h
@@ -869,6 +874,7 @@ set(ZLIB_SRCS
     compress.c
     crc32.c
     crc32_comb.c
+    crc32_fold.c
     deflate.c
     deflate_fast.c
     deflate_huff.c
@@ -1080,6 +1086,7 @@ if(ZLIB_ENABLE_TESTS)
     endmacro()
 
     add_simple_test_executable(adler32_test)
+    add_simple_test_executable(crc32_test)
     add_simple_test_executable(example)
 
     set(MINIGZIP_COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:minigzip>)
