@@ -17,10 +17,6 @@
 #  include <cpuid.h>
 #endif
 
-#if !defined(_MSC_VER) || defined(MSVC_HOTFIX_INCLUDE)
-
-Z_INTERNAL void dummy_linker_glue_y(void) {}
-
 Z_INTERNAL int x86_cpu_has_avx2;
 Z_INTERNAL int x86_cpu_has_sse2;
 Z_INTERNAL int x86_cpu_has_ssse3;
@@ -56,9 +52,9 @@ static void cpuidex(int info, int subinfo, unsigned* eax, unsigned* ebx, unsigne
 #endif
 }
 
-static void __attribute__((constructor)) x86_check_features(void) {
-	unsigned eax, ebx, ecx, edx;
-	unsigned maxbasic;
+void Z_INTERNAL x86_check_features(void) {
+    unsigned eax, ebx, ecx, edx;
+    unsigned maxbasic;
 
     cpuid(0, &maxbasic, &ebx, &ecx, &edx);
 
@@ -82,5 +78,3 @@ static void __attribute__((constructor)) x86_check_features(void) {
         x86_cpu_has_avx2 = 0;
     }
 }
-
-#endif

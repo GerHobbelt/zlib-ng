@@ -132,6 +132,8 @@ int32_t Z_EXPORT PREFIX(inflateInit2_)(PREFIX3(stream) *strm, int32_t windowBits
     int32_t ret;
     struct inflate_state *state;
 
+    cpu_check_features();
+
     if (version == NULL || version[0] != PREFIX2(VERSION)[0] || stream_size != (int)(sizeof(PREFIX3(stream))))
         return Z_VERSION_ERROR;
     if (strm == NULL)
@@ -148,7 +150,7 @@ int32_t Z_EXPORT PREFIX(inflateInit2_)(PREFIX3(stream) *strm, int32_t windowBits
         return Z_MEM_ERROR;
     Tracev((stderr, "inflate: allocated\n"));
 	memset(state, 0, sizeof(*state));
-	strm->state = (struct internal_state *)state;
+    strm->state = (struct internal_state *)state;
     state->strm = strm;
     state->window = NULL;
     state->mode = HEAD;     /* to pass state test in inflateReset2() */
@@ -1242,7 +1244,7 @@ int32_t Z_EXPORT PREFIX(inflateCopy)(PREFIX3(stream) *dest, PREFIX3(stream) *sou
     if (copy == NULL)
         return Z_MEM_ERROR;
 	memset(copy, 0, sizeof(*copy));
-	window = NULL;
+    window = NULL;
     if (state->window != NULL) {
         window = (unsigned char *)ZALLOC_WINDOW(source, 1U << state->wbits, sizeof(unsigned char));
         if (window == NULL) {

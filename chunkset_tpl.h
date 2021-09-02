@@ -176,23 +176,13 @@ Z_INTERNAL uint8_t* CHUNKMEMSET(uint8_t *out, unsigned dist, unsigned len) {
 }
 
 Z_INTERNAL uint8_t* CHUNKMEMSET_SAFE(uint8_t *out, unsigned dist, unsigned len, unsigned left) {
+    len = MIN(len, left);
     if (left < (unsigned)(3 * sizeof(chunk_t))) {
         uint8_t *from = out - dist;
-        uint8_t *end = out + left - 1;
-        if (dist < sizeof(void *)) {
-            while (len > 0) {
-                *out++ = *from++;
-                --len;
-            }
-            return out;
+        while (len > 0) {
+            *out++ = *from++;
+            --len;
         }
-        /* Unroll if dist is at least pointer size */
-        unsigned max_len = MIN(dist, len);
-        while (len) {
-            out = CHUNKCOPY_SAFE(out, from, max_len, end);
-            len -= max_len;
-            max_len = MIN(max_len * 2, len);
-        };
         return out;
     }
     return CHUNKMEMSET(out, dist, len);

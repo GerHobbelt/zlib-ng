@@ -10,4 +10,6 @@
 extern int power_cpu_has_altivec;
 extern int power_cpu_has_arch_2_07;
 
+void Z_INTERNAL power_check_features(void);
+
 #endif /* POWER_H_ */

@@ -184,10 +184,8 @@ extern uint32_t longest_match_slow_unaligned_avx2(deflate_state *const s, Pos cu
 #endif
 #endif
 
-Z_INTERNAL void dummy_linker_glue_x(void) {}
-
 /* functable init */
-Z_INTERNAL struct functable_s functable = { 0 };
+Z_INTERNAL Z_TLS struct functable_s functable = { 0 };
 
 Z_INTERNAL void cpu_check_features(void)
 {
@@ -207,10 +205,11 @@ Z_INTERNAL void cpu_check_features(void)
 }
 
 /* stub functions */
-static void __attribute__((constructor)) update_hash_stub() {
+Z_INTERNAL uint32_t update_hash_stub(deflate_state *const s, uint32_t h, uint32_t val) {
     // Initialize default
 
     functable.update_hash = &update_hash_c;
+    cpu_check_features();
 
 #ifdef X86_SSE42_CRC_HASH
     if (x86_cpu_has_sse42)
@@ -219,12 +218,15 @@ static void __attribute__((constructor)) update_hash_stub() {
     if (arm_cpu_has_crc32)
         functable.update_hash = &update_hash_acle;
 #endif
+
+    return functable.update_hash(s, h, val);
 }
 
-static void __attribute__((constructor)) insert_string_stub() {
+Z_INTERNAL void insert_string_stub(deflate_state *const s, uint32_t str, uint32_t count) {
     // Initialize default
 
     functable.insert_string = &insert_string_c;
+    cpu_check_features();
 
 #ifdef X86_SSE42_CRC_HASH
     if (x86_cpu_has_sse42)
@@ -233,10 +235,13 @@ static void __attribute__((constructor)) insert_string_stub() {
     if (arm_cpu_has_crc32)
         functable.insert_string = &insert_string_acle;
 #endif
+
+    functable.insert_string(s, str, count);
 }
 
-static void __attribute__((constructor)) quick_insert_string_stub_init() {
+Z_INTERNAL Pos quick_insert_string_stub(deflate_state *const s, const uint32_t str) {
     functable.quick_insert_string = &quick_insert_string_c;
+    cpu_check_features();
 
 #ifdef X86_SSE42_CRC_HASH
     if (x86_cpu_has_sse42)
@@ -245,11 +250,14 @@ static void __attribute__((constructor)) quick_insert_string_stub_init() {
     if (arm_cpu_has_crc32)
         functable.quick_insert_string = &quick_insert_string_acle;
 #endif
+
+    return functable.quick_insert_string(s, str);
 }
 
-static void __attribute__((constructor)) slide_hash_stub_init() {
+Z_INTERNAL void slide_hash_stub(deflate_state *s) {
 
     functable.slide_hash = &slide_hash_c;
+    cpu_check_features();
 
 #ifdef X86_SSE2
 #  if !defined(__x86_64__) && !defined(_M_X64) && !defined(X86_NOCHECK_SSE2)
@@ -274,11 +282,14 @@ static void __attribute__((constructor)) slide_hash_stub_init() {
     if (power_cpu_has_arch_2_07)
         functable.slide_hash = &slide_hash_power8;
 #endif
+
+    functable.slide_hash(s);
 }
 
-static void __attribute__((constructor)) adler32_stub_init() {
+Z_INTERNAL uint32_t adler32_stub(uint32_t adler, const unsigned char *buf, size_t len) {
     // Initialize default
     functable.adler32 = &adler32_c;
+    cpu_check_features();
 
 #ifdef ARM_NEON_ADLER32
 #  ifndef ARM_NOCHECK_NEON
@@ -302,6 +313,8 @@ static void __attribute__((constructor)) adler32_stub_init() {
     if (power_cpu_has_arch_2_07)
         functable.adler32 = &adler32_power8;
 #endif
+
+    return functable.adler32(adler, buf, len);
 }
 
 Z_INTERNAL uint32_t crc32_fold_reset_stub(crc32_fold *crc) {
@@ -334,9 +347,10 @@ Z_INTERNAL uint32_t crc32_fold_final_stub(crc32_fold *crc) {
     return functable.crc32_fold_final(crc);
 }
 
-static void __attribute__((constructor)) chunksize_stub_init(void) {
+Z_INTERNAL uint32_t chunksize_stub(void) {
     // Initialize default
     functable.chunksize = &chunksize_c;
+    cpu_check_features();
 
 #ifdef X86_SSE2_CHUNKSET
 # if !defined(__x86_64__) && !defined(_M_X64) && !defined(X86_NOCHECK_SSE2)
@@ -356,11 +370,14 @@ static void __attribute__((constructor)) chunksize_stub_init(void) {
     if (power_cpu_has_arch_2_07)
         functable.chunksize = &chunksize_power8;
 #endif
+
+    return functable.chunksize();
 }
 
-static void __attribute__((constructor)) chunkcopy_stub_init() {
+Z_INTERNAL uint8_t* chunkcopy_stub(uint8_t *out, uint8_t const *from, unsigned len) {
     // Initialize default
     functable.chunkcopy = &chunkcopy_c;
+    cpu_check_features();
 
 #ifdef X86_SSE2_CHUNKSET
 # if !defined(__x86_64__) && !defined(_M_X64) && !defined(X86_NOCHECK_SSE2)
@@ -380,11 +397,14 @@ static void __attribute__((constructor)) chunkcopy_stub_init() {
     if (power_cpu_has_arch_2_07)
         functable.chunkcopy = &chunkcopy_power8;
 #endif
+
+    return functable.chunkcopy(out, from, len);
 }
 
-static void __attribute__((constructor)) chunkcopy_safe_stub_init() {
+Z_INTERNAL uint8_t* chunkcopy_safe_stub(uint8_t *out, uint8_t const *from, unsigned len, uint8_t *safe) {
     // Initialize default
     functable.chunkcopy_safe = &chunkcopy_safe_c;
+    cpu_check_features();
 
 #ifdef X86_SSE2_CHUNKSET
 # if !defined(__x86_64__) && !defined(_M_X64) && !defined(X86_NOCHECK_SSE2)
@@ -404,11 +424,14 @@ static void __attribute__((constructor)) chunkcopy_safe_stub_init() {
     if (power_cpu_has_arch_2_07)
         functable.chunkcopy_safe = &chunkcopy_safe_power8;
 #endif
+
+    return functable.chunkcopy_safe(out, from, len, safe);
 }
 
-static void __attribute__((constructor)) chunkunroll_stub_init() {
+Z_INTERNAL uint8_t* chunkunroll_stub(uint8_t *out, unsigned *dist, unsigned *len) {
     // Initialize default
     functable.chunkunroll = &chunkunroll_c;
+    cpu_check_features();
 
 #ifdef X86_SSE2_CHUNKSET
 # if !defined(__x86_64__) && !defined(_M_X64) && !defined(X86_NOCHECK_SSE2)
@@ -429,14 +452,13 @@ static void __attribute__((constructor)) chunkunroll_stub_init() {
         functable.chunkunroll = &chunkunroll_power8;
 #endif
 
-#if defined(__APPLE__)
-    dummy_linker_glue_y();
-#endif
+    return functable.chunkunroll(out, dist, len);
 }
 
-static void __attribute__((constructor)) chunkmemset_stub_init() {
+Z_INTERNAL uint8_t* chunkmemset_stub(uint8_t *out, unsigned dist, unsigned len) {
     // Initialize default
     functable.chunkmemset = &chunkmemset_c;
+    cpu_check_features();
 
 #ifdef X86_SSE2_CHUNKSET
 # if !defined(__x86_64__) && !defined(_M_X64) && !defined(X86_NOCHECK_SSE2)
@@ -457,11 +479,14 @@ static void __attribute__((constructor)) chunkmemset_stub_init() {
         functable.chunkmemset = &chunkmemset_power8;
 #endif
 
+
+    return functable.chunkmemset(out, dist, len);
 }
 
-static void __attribute__((constructor)) chunkmemset_safe_stub_init() {
+Z_INTERNAL uint8_t* chunkmemset_safe_stub(uint8_t *out, unsigned dist, unsigned len, unsigned left) {
     // Initialize default
     functable.chunkmemset_safe = &chunkmemset_safe_c;
+    cpu_check_features();
 
 #ifdef X86_SSE2_CHUNKSET
 # if !defined(__x86_64__) && !defined(_M_X64) && !defined(X86_NOCHECK_SSE2)
@@ -481,9 +506,11 @@ static void __attribute__((constructor)) chunkmemset_safe_stub_init() {
     if (power_cpu_has_arch_2_07)
         functable.chunkmemset_safe = &chunkmemset_safe_power8;
 #endif
+
+    return functable.chunkmemset_safe(out, dist, len, left);
 }
 
-static void __attribute__((constructor)) crc32_stub_init() {
+Z_INTERNAL uint32_t crc32_stub(uint32_t crc, const unsigned char *buf, uint64_t len) {
     int32_t use_byfour = sizeof(void *) == sizeof(ptrdiff_t);
 
     Assert(sizeof(uint64_t) >= sizeof(size_t),
@@ -491,6 +518,7 @@ static void __attribute__((constructor)) crc32_stub_init() {
     /* return a function pointer for optimized arches here after a capability test */
 
     functable.crc32 = &crc32_generic;
+    cpu_check_features();
 
     if (use_byfour) {
 #if BYTE_ORDER == LITTLE_ENDIAN
@@ -513,11 +541,14 @@ static void __attribute__((constructor)) crc32_stub_init() {
     if (power_cpu_has_arch_2_07)
         functable.crc32 = crc32_power8;
 #endif
+
+    return functable.crc32(crc, buf, len);
 }
 
-static void __attribute__((constructor)) compare258_stub_init() {
+Z_INTERNAL uint32_t compare258_stub(const unsigned char *src0, const unsigned char *src1) {
 
     functable.compare258 = &compare258_c;
+    cpu_check_features();
 
 #ifdef UNALIGNED_OK
 #  if defined(UNALIGNED64_OK) && defined(HAVE_BUILTIN_CTZLL)
@@ -536,9 +567,11 @@ static void __attribute__((constructor)) compare258_stub_init() {
         functable.compare258 = &compare258_unaligned_avx2;
 #  endif
 #endif
+
+    return functable.compare258(src0, src1);
 }
 
-static void __attribute__((constructor)) longest_match_stub_init() {
+Z_INTERNAL uint32_t longest_match_stub(deflate_state *const s, Pos cur_match) {
 
     functable.longest_match = &longest_match_c;
 
@@ -559,9 +592,11 @@ static void __attribute__((constructor)) longest_match_stub_init() {
         functable.longest_match = &longest_match_unaligned_avx2;
 #  endif
 #endif
+
+    return functable.longest_match(s, cur_match);
 }
 
-static void __attribute__((constructor)) longest_match_slow_stub() {
+Z_INTERNAL uint32_t longest_match_slow_stub(deflate_state *const s, Pos cur_match) {
 
     functable.longest_match_slow = &longest_match_slow_c;
 
@@ -582,7 +617,31 @@ static void __attribute__((constructor)) longest_match_slow_stub() {
         functable.longest_match_slow = &longest_match_slow_unaligned_avx2;
 #  endif
 #endif
+
+    return functable.longest_match_slow(s, cur_match);
 }
+
+/* functable init */
+Z_INTERNAL Z_TLS struct functable_s functable = {
+    update_hash_stub,
+    insert_string_stub,
+    quick_insert_string_stub,
+    adler32_stub,
+    crc32_stub,
+    crc32_fold_reset_stub,
+    crc32_fold_copy_stub,
+    crc32_fold_final_stub,
+    slide_hash_stub,
+    compare258_stub,
+    longest_match_stub,
+    longest_match_slow_stub,
+    chunksize_stub,
+    chunkcopy_stub,
+    chunkcopy_safe_stub,
+    chunkunroll_stub,
+    chunkmemset_stub,
+    chunkmemset_safe_stub
+};
 
 #if defined(_MSC_VER)
 #define MSVC_HOTFIX_INCLUDE 1
@@ -597,22 +656,4 @@ void zng_lib_init(void)
 		return;
 
 	cpu_check_features();
-    update_hash_stub();
-	insert_string_stub();
-	quick_insert_string_stub_init();
-    crc32_fold_reset_init();
-    crc32_fold_copy_init();
-    crc32_fold_final_init();
-	slide_hash_stub_init();
-	adler32_stub_init();
-    longest_match_slow_stub();
-	chunksize_stub_init();
-	chunkcopy_stub_init();
-	chunkcopy_safe_stub_init();
-	chunkunroll_stub_init();
-	chunkmemset_stub_init();
-	chunkmemset_safe_stub_init();
-	crc32_stub_init();
-	compare258_stub_init();
-	longest_match_stub_init();
 }

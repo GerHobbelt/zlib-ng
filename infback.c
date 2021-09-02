@@ -45,7 +45,7 @@ int32_t Z_EXPORT PREFIX(inflateBackInit_)(PREFIX3(stream) *strm, int32_t windowB
         return Z_MEM_ERROR;
     Tracev((stderr, "inflate: allocated\n"));
 	memset(state, 0, sizeof(*state));
-	strm->state = (struct internal_state *)state;
+    strm->state = (struct internal_state *)state;
     state->dmax = 32768U;
     state->wbits = (unsigned int)windowBits;
     state->wsize = 1U << windowBits;
