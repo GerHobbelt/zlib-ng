@@ -152,6 +152,7 @@ int32_t Z_EXPORT PREFIX(inflateInit2_)(PREFIX3(stream) *strm, int32_t windowBits
     state->strm = strm;
     state->window = NULL;
     state->mode = HEAD;     /* to pass state test in inflateReset2() */
+    state->check = 1L;      /* 1L is the result of adler32() zero length data */
     state->chunksize = functable.chunksize();
     ret = PREFIX(inflateReset2)(strm, windowBits);
     if (ret != Z_OK) {

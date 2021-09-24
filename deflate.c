@@ -245,9 +245,16 @@ int32_t Z_EXPORT PREFIX(deflateInit2_)(PREFIX3(stream) *strm, int32_t level, int
     window_padding = 8;
 #endif
 
+    /* Avoid use of unitialized values in the window, see crbug.com/1137613 and
+     * crbug.com/1144420 */
     s->window = (unsigned char *) ZALLOC_WINDOW(strm, s->w_size + window_padding, 2*sizeof(unsigned char));
+
     s->prev   = (Pos *)  ZALLOC(strm, s->w_size, sizeof(Pos));
+    /* Avoid use of uninitialized value, see:
+     * https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=11360
+     */
     memset(s->prev, 0, s->w_size * sizeof(Pos));
+
     s->head   = (Pos *)  ZALLOC(strm, HASH_SIZE, sizeof(Pos));
 
     s->high_water = 0;      /* nothing written to s->window yet */
