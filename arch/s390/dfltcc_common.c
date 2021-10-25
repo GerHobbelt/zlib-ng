@@ -1,6 +1,6 @@
 /* dfltcc_deflate.c - IBM Z DEFLATE CONVERSION CALL general support. */
 
-#include "../../zbuild.h"
+#include "zbuild.h"
 
 #ifndef _MSC_VER  // TODO: make this a proper check; now it's only a quick hack
 

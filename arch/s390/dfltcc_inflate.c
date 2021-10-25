@@ -13,10 +13,10 @@
         $ make
 */
 
-#include "../../zbuild.h"
-#include "../../zutil.h"
-#include "../../inftrees.h"
-#include "../../inflate.h"
+#include "zbuild.h"
+#include "zutil.h"
+#include "inftrees.h"
+#include "inflate.h"
 
 #ifndef _MSC_VER  // TODO: make this a proper check; now it's only a quick hack
 
