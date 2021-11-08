@@ -6,6 +6,41 @@
  * various fixes by Cosmin Truta <cosmint@cs.ubbcluj.ro>
  */
 
+
+
+
+
+/* [i_a] */
+#ifndef HAS_MSVC_2005_ISO_RTL
+#if defined(_MSC_VER)
+#if _MSC_VER >= 1400 /* VS.NET 2005 or above: 'fix' those deprecated functions */
+#define HAS_MSVC_2005_ISO_RTL     1
+#endif
+#endif
+
+#ifndef HAS_MSVC_2005_ISO_RTL
+#define HAS_MSVC_2005_ISO_RTL     0
+#endif
+
+#if HAS_MSVC_2005_ISO_RTL
+#pragma warning(disable : 4996)
+// Or just turn off warnings about the newly deprecated CRT functions.
+#ifndef _CRT_SECURE_NO_DEPRECATE
+#define _CRT_SECURE_NO_DEPRECATE
+#endif
+#ifndef _CRT_NONSTDC_NO_DEPRECATE
+#define _CRT_NONSTDC_NO_DEPRECATE
+#endif
+#define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES     1
+#endif
+#endif
+/* [/i_a] */
+
+
+
+
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -107,13 +142,13 @@ void TGZnotfound        OF((const char *));
 
 int getoct              OF((char *, int));
 char *strtime           OF((time_t *));
-int setfiletime         OF((char *, time_t));
+int setfiletime         OF((const char *, time_t));
 void push_attr          OF((struct attr_item **, char *, int, time_t));
 void restore_attr       OF((struct attr_item **));
 
 int ExprMatch           OF((char *, char *));
 
-int makedir             OF((char *));
+int makedir             OF((const char *));
 int matchname           OF((int, int, char **, char *));
 
 void error              OF((const char *));
@@ -132,7 +167,8 @@ const char *TGZsuffix[] = { "\0", ".tar", ".tar.gz", ".taz", ".tgz", NULL };
 char *TGZfname (const char *arcname)
 {
   static char buffer[1024];
-  int origlen,i;
+  size_t origlen;
+  int i;
 
   strcpy(buffer,arcname);
   origlen = strlen(buffer);
@@ -203,7 +239,7 @@ char *strtime (time_t *t)
 
 /* set file time */
 
-int setfiletime (char *fname,time_t ftime)
+int setfiletime (const char *fname,time_t ftime)
 {
 #ifdef WIN32
   static int isWinNT = -1;
@@ -325,13 +361,13 @@ int ExprMatch (char *string,char *expr)
 /* return 1 if OK */
 /*        0 on error */
 
-int makedir (char *newdir)
+int makedir (const char *newdir)
 {
   char *buffer = strdup(newdir);
   char *p;
-  int  len = strlen(buffer);
+  size_t len = strlen(buffer);
 
-  if (len <= 0) {
+  if (len == 0) { /* [i_a] */
     free(buffer);
     return 0;
   }
@@ -608,7 +644,7 @@ int main(int argc,char **argv)
     int         action = TGZ_EXTRACT;
     int         arg = 1;
     char        *TGZfile;
-    gzFile      *f;
+    gzFile      f;
 
     prog = strrchr(argv[0],'\\');
     if (prog == NULL)

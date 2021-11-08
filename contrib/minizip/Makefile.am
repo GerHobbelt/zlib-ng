@@ -31,6 +31,7 @@ minizip_include_HEADERS = \
 	mztools.h \
 	unzip.h \
 	zip.h \
+	platform_fixes.h \
 	${iowin32_h}
 
 pkgconfigdir = $(libdir)/pkgconfig

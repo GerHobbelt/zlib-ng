@@ -11,6 +11,9 @@
 
 */
 
+#include "platform_fixes.h" /* [i_a] */
+
+
 #include <stdlib.h>
 
 #include "zlib.h"
