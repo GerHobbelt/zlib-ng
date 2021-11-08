@@ -181,13 +181,17 @@ Z_INTERNAL void crc_finalize(deflate_state *const s) {
 
 Z_INTERNAL void crc_reset(deflate_state *const s) {
 #ifdef X86_PCLMULQDQ_CRC
-    x86_check_features();
     if (x86_cpu_has_pclmulqdq) {
         crc_fold_init(s);
         return;
     }
 #endif
     s->strm->adler = PREFIX(crc32)(0L, NULL, 0);
+
+#if defined(__APPLE__)
+    dummy_linker_glue_x();
+    dummy_linker_glue_y();
+#endif
 }
 
 Z_INTERNAL void copy_with_crc(PREFIX3(stream) *strm, unsigned char *dst, unsigned long size) {

@@ -143,22 +143,22 @@ static const config configuration_table[10] = {
 /*      good lazy nice chain */
 /* 0 */ {0,    0,  0,    0, deflate_stored},  /* store only */
 
-#ifndef NO_QUICK_STRATEGY
-/* 1 */ {4,    4,  8,    4, deflate_quick},
-/* 2 */ {4,    4,  8,    4, deflate_fast}, /* max speed, no lazy matches */
-#else
+#ifdef NO_QUICK_STRATEGY
 /* 1 */ {4,    4,  8,    4, deflate_fast}, /* max speed, no lazy matches */
 /* 2 */ {4,    5, 16,    8, deflate_fast},
+#else
+/* 1 */ {0,    0,  0,    0, deflate_quick},
+/* 2 */ {4,    4,  8,    4, deflate_fast}, /* max speed, no lazy matches */
 #endif
 
-/* 3 */ {4,    6, 32,   32, deflate_fast},
-
 #ifdef NO_MEDIUM_STRATEGY
+/* 3 */ {4,    6, 32,   32, deflate_fast},
 /* 4 */ {4,    4, 16,   16, deflate_slow},  /* lazy matches */
 /* 5 */ {8,   16, 32,   32, deflate_slow},
 /* 6 */ {8,   16, 128, 128, deflate_slow},
 #else
-/* 4 */ {4,    4, 16,   16, deflate_medium},  /* lazy matches */
+/* 3 */ {4,    6, 16,    6, deflate_medium},
+/* 4 */ {4,   12, 32,   24, deflate_medium},  /* lazy matches */
 /* 5 */ {8,   16, 32,   32, deflate_medium},
 /* 6 */ {8,   16, 128, 128, deflate_medium},
 #endif
@@ -208,7 +208,7 @@ Z_INTERNAL void slide_hash_c(deflate_state *s) {
      *    o. the pointer advance forward, and
      *    o. demote the variable 'm' to be local to the loop, and
      *       choose type "Pos" (instead of 'unsigned int') for the
-     *       variable to avoid unncessary zero-extension.
+     *       variable to avoid unnecessary zero-extension.
      */
     {
         unsigned int i;
@@ -259,12 +259,6 @@ int32_t Z_EXPORT PREFIX(deflateInit2_)(PREFIX3(stream) *strm, int32_t level, int
     int wrap = 1;
     static const char my_version[] = PREFIX2(VERSION);
 
-#if defined(X86_FEATURES)
-    x86_check_features();
-#elif defined(ARM_FEATURES)
-    arm_check_features();
-#endif
-
     if (version == NULL || version[0] != my_version[0] || stream_size != sizeof(PREFIX3(stream))) {
         return Z_VERSION_ERROR;
     }
@@ -298,11 +292,6 @@ int32_t Z_EXPORT PREFIX(deflateInit2_)(PREFIX3(stream) *strm, int32_t level, int
     }
     if (windowBits == 8)
         windowBits = 9;  /* until 256-byte window bug fixed */
-
-#if !defined(NO_QUICK_STRATEGY) && !defined(S390_DFLTCC_DEFLATE)
-    if (level == 1)
-        windowBits = 13;
-#endif
 
     s = (deflate_state *) ZALLOC_STATE(strm, 1, sizeof(deflate_state));
     if (s == NULL)

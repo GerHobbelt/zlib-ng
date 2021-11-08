@@ -134,29 +134,16 @@ extern uint32_t longest_match_unaligned_avx2(deflate_state *const s, Pos cur_mat
 #endif
 #endif
 
-Z_INTERNAL Z_TLS struct functable_s functable;
+Z_INTERNAL void dummy_linker_glue_x(void) {}
 
-Z_INTERNAL void cpu_check_features(void)
-{
-    static int features_checked = 0;
-    if (features_checked)
-        return;
-#if defined(X86_FEATURES)
-    x86_check_features();
-#elif defined(ARM_FEATURES)
-    arm_check_features();
-#elif defined(POWER_FEATURES)
-    power_check_features();
-#endif
-    features_checked = 1;
-}
+/* functable init */
+Z_INTERNAL struct functable_s functable;
 
 /* stub functions */
-Z_INTERNAL void insert_string_stub(deflate_state *const s, const uint32_t str, uint32_t count) {
+static void __attribute__((constructor)) insert_string_stub() {
     // Initialize default
 
     functable.insert_string = &insert_string_c;
-    cpu_check_features();
 
 #ifdef X86_SSE42_CRC_HASH
     if (x86_cpu_has_sse42)
@@ -165,11 +152,9 @@ Z_INTERNAL void insert_string_stub(deflate_state *const s, const uint32_t str, u
     if (arm_cpu_has_crc32)
         functable.insert_string = &insert_string_acle;
 #endif
-
-    functable.insert_string(s, str, count);
 }
 
-Z_INTERNAL Pos quick_insert_string_stub(deflate_state *const s, const uint32_t str) {
+static void __attribute__((constructor)) quick_insert_string_stub_init() {
     functable.quick_insert_string = &quick_insert_string_c;
 
 #ifdef X86_SSE42_CRC_HASH
@@ -179,14 +164,11 @@ Z_INTERNAL Pos quick_insert_string_stub(deflate_state *const s, const uint32_t s
     if (arm_cpu_has_crc32)
         functable.quick_insert_string = &quick_insert_string_acle;
 #endif
-
-    return functable.quick_insert_string(s, str);
 }
 
-Z_INTERNAL void slide_hash_stub(deflate_state *s) {
+static void __attribute__((constructor)) slide_hash_stub_init() {
 
     functable.slide_hash = &slide_hash_c;
-    cpu_check_features();
 
 #ifdef X86_SSE2
 #  if !defined(__x86_64__) && !defined(_M_X64) && !defined(X86_NOCHECK_SSE2)
@@ -207,14 +189,11 @@ Z_INTERNAL void slide_hash_stub(deflate_state *s) {
     if (power_cpu_has_arch_2_07)
         functable.slide_hash = &slide_hash_power8;
 #endif
-
-    functable.slide_hash(s);
 }
 
-Z_INTERNAL uint32_t adler32_stub(uint32_t adler, const unsigned char *buf, size_t len) {
+static void __attribute__((constructor)) adler32_stub_init() {
     // Initialize default
     functable.adler32 = &adler32_c;
-    cpu_check_features();
 
 #ifdef ARM_NEON_ADLER32
 #  ifndef ARM_NOCHECK_NEON
@@ -234,11 +213,9 @@ Z_INTERNAL uint32_t adler32_stub(uint32_t adler, const unsigned char *buf, size_
     if (power_cpu_has_arch_2_07)
         functable.adler32 = &adler32_power8;
 #endif
-
-    return functable.adler32(adler, buf, len);
 }
 
-Z_INTERNAL uint32_t chunksize_stub(void) {
+static void __attribute__((constructor)) chunksize_stub_init(void) {
     // Initialize default
     functable.chunksize = &chunksize_c;
 
@@ -256,11 +233,9 @@ Z_INTERNAL uint32_t chunksize_stub(void) {
     if (arm_cpu_has_neon)
         functable.chunksize = &chunksize_neon;
 #endif
-
-    return functable.chunksize();
 }
 
-Z_INTERNAL uint8_t* chunkcopy_stub(uint8_t *out, uint8_t const *from, unsigned len) {
+static void __attribute__((constructor)) chunkcopy_stub_init() {
     // Initialize default
     functable.chunkcopy = &chunkcopy_c;
 
@@ -278,11 +253,9 @@ Z_INTERNAL uint8_t* chunkcopy_stub(uint8_t *out, uint8_t const *from, unsigned l
     if (arm_cpu_has_neon)
         functable.chunkcopy = &chunkcopy_neon;
 #endif
-
-    return functable.chunkcopy(out, from, len);
 }
 
-Z_INTERNAL uint8_t* chunkcopy_safe_stub(uint8_t *out, uint8_t const *from, unsigned len, uint8_t *safe) {
+static void __attribute__((constructor)) chunkcopy_safe_stub_init() {
     // Initialize default
     functable.chunkcopy_safe = &chunkcopy_safe_c;
 
@@ -300,11 +273,9 @@ Z_INTERNAL uint8_t* chunkcopy_safe_stub(uint8_t *out, uint8_t const *from, unsig
     if (arm_cpu_has_neon)
         functable.chunkcopy_safe = &chunkcopy_safe_neon;
 #endif
-
-    return functable.chunkcopy_safe(out, from, len, safe);
 }
 
-Z_INTERNAL uint8_t* chunkunroll_stub(uint8_t *out, unsigned *dist, unsigned *len) {
+static void __attribute__((constructor)) chunkunroll_stub_init() {
     // Initialize default
     functable.chunkunroll = &chunkunroll_c;
 
@@ -323,10 +294,12 @@ Z_INTERNAL uint8_t* chunkunroll_stub(uint8_t *out, unsigned *dist, unsigned *len
         functable.chunkunroll = &chunkunroll_neon;
 #endif
 
-    return functable.chunkunroll(out, dist, len);
+#if defined(__APPLE__)
+    dummy_linker_glue_y();
+#endif
 }
 
-Z_INTERNAL uint8_t* chunkmemset_stub(uint8_t *out, unsigned dist, unsigned len) {
+static void __attribute__((constructor)) chunkmemset_stub_init() {
     // Initialize default
     functable.chunkmemset = &chunkmemset_c;
 
@@ -344,11 +317,9 @@ Z_INTERNAL uint8_t* chunkmemset_stub(uint8_t *out, unsigned dist, unsigned len) 
     if (arm_cpu_has_neon)
         functable.chunkmemset = &chunkmemset_neon;
 #endif
-
-    return functable.chunkmemset(out, dist, len);
 }
 
-Z_INTERNAL uint8_t* chunkmemset_safe_stub(uint8_t *out, unsigned dist, unsigned len, unsigned left) {
+static void __attribute__((constructor)) chunkmemset_safe_stub_init() {
     // Initialize default
     functable.chunkmemset_safe = &chunkmemset_safe_c;
 
@@ -366,18 +337,14 @@ Z_INTERNAL uint8_t* chunkmemset_safe_stub(uint8_t *out, unsigned dist, unsigned 
     if (arm_cpu_has_neon)
         functable.chunkmemset_safe = &chunkmemset_safe_neon;
 #endif
-
-    return functable.chunkmemset_safe(out, dist, len, left);
 }
 
-Z_INTERNAL uint32_t crc32_stub(uint32_t crc, const unsigned char *buf, uint64_t len) {
+static void __attribute__((constructor)) crc32_stub_init() {
     int32_t use_byfour = sizeof(void *) == sizeof(ptrdiff_t);
 
     Assert(sizeof(uint64_t) >= sizeof(size_t),
            "crc32_z takes size_t but internally we have a uint64_t len");
     /* return a function pointer for optimized arches here after a capability test */
-
-    cpu_check_features();
 
     if (use_byfour) {
 #if BYTE_ORDER == LITTLE_ENDIAN
@@ -394,11 +361,9 @@ Z_INTERNAL uint32_t crc32_stub(uint32_t crc, const unsigned char *buf, uint64_t 
     } else {
         functable.crc32 = crc32_generic;
     }
-
-    return functable.crc32(crc, buf, len);
 }
 
-Z_INTERNAL uint32_t compare258_stub(const unsigned char *src0, const unsigned char *src1) {
+static void __attribute__((constructor)) compare258_stub_init() {
 
     functable.compare258 = &compare258_c;
 
@@ -419,11 +384,9 @@ Z_INTERNAL uint32_t compare258_stub(const unsigned char *src0, const unsigned ch
         functable.compare258 = &compare258_unaligned_avx2;
 #  endif
 #endif
-
-    return functable.compare258(src0, src1);
 }
 
-Z_INTERNAL uint32_t longest_match_stub(deflate_state *const s, Pos cur_match) {
+static void __attribute__((constructor)) longest_match_stub_init() {
 
     functable.longest_match = &longest_match_c;
 
@@ -444,23 +407,28 @@ Z_INTERNAL uint32_t longest_match_stub(deflate_state *const s, Pos cur_match) {
         functable.longest_match = &longest_match_unaligned_avx2;
 #  endif
 #endif
-
-    return functable.longest_match(s, cur_match);
 }
 
-/* functable init */
-Z_INTERNAL Z_TLS struct functable_s functable = {
-    insert_string_stub,
-    quick_insert_string_stub,
-    adler32_stub,
-    crc32_stub,
-    slide_hash_stub,
-    compare258_stub,
-    longest_match_stub,
-    chunksize_stub,
-    chunkcopy_stub,
-    chunkcopy_safe_stub,
-    chunkunroll_stub,
-    chunkmemset_stub,
-    chunkmemset_safe_stub
-};
+#if defined(_MSC_VER)
+#define MSVC_HOTFIX_INCLUDE 1
+#include "arch\x86\x86.c"
+
+Z_EXPORT
+void zng_lib_init(void)
+{
+	x86_check_features();
+	insert_string_stub();
+	quick_insert_string_stub_init();
+	slide_hash_stub_init();
+	adler32_stub_init();
+	chunksize_stub_init();
+	chunkcopy_stub_init();
+	chunkcopy_safe_stub_init();
+	chunkunroll_stub_init();
+	chunkmemset_stub_init();
+	chunkmemset_safe_stub_init();
+	crc32_stub_init();
+	compare258_stub_init();
+	longest_match_stub_init();
+}
+#endif
