@@ -1,13 +1,23 @@
-# Don't include anything not needed to build and use the library.
-.git*           export-ignore
-amiga/          export-ignore
-contrib/        export-ignore
-doc/            export-ignore
-examples/       export-ignore
-msdos/          export-ignore
-nintendods/     export-ignore
-old/            export-ignore
-os400/          export-ignore
-qnx/            export-ignore
-test/           export-ignore
-watcom/         export-ignore
+*.sh            text eol=lf
+*.ac            text eol=lf
+*.am            text eol=lf
+*.in            text eol=lf
+Makefile        text eol=lf
+configure       text eol=lf
+
+# Xcode
+*.pbxproj       text eol=crlf
+.* icns         binary
+
+# Visual Studio
+*.csproj        text eol=crlf
+*.vbproj        text eol=crlf
+*.fsproj        text eol=crlf
+*.dbproj        text eol=crlf
+*.vcproj        text eol=crlf
+*.vcxproj       text eol=crlf
+*.filter        text eol=crlf
+*.vsprops       text eol=crlf
+*.sln           text eol=crlf
+*.dsw           text eol=crlf
+*.dsp           text eol=crlf

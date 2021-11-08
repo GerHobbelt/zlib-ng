@@ -1,3 +1,4 @@
+*.gdb
 *.diff
 *.patch
 *.orig
@@ -8,6 +9,18 @@
 *.lo
 *.o
 *.dylib
+*.aps
+*.obj
+*.sdf
+*.ncb
+*.bak
+*.user
+*.la
+*.suo
+*.sdf
+*.opensdf
+.deps
+.libs
 
 *.gcda
 *.gcno
@@ -22,5 +35,9 @@
 /minigzipsh
 /zlib.pc
 /configure.log
+
+obj/
+bin/
+ipch/
 
 .DS_Store
