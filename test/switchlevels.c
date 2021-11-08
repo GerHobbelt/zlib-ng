@@ -2,6 +2,8 @@
  * Each chunk is compressed with a user-specified level.
  */
 
+#define _POSIX_SOURCE 1  /* This file needs POSIX for fileno(). */
+
 #include "zbuild.h"
 #ifdef ZLIB_COMPAT
 #  include "zlib.h"
@@ -111,13 +113,19 @@ done:
     return ret;
 }
 
-void show_help(void)
+static void show_help(void)
 {
     printf("Usage: switchlevels [-w bits] level1 size1 [level2 size2 ...]\n\n" \
            "  -w : window bits (8 to 15 for gzip, -8 to -15 for zlib)\n\n");
 }
 
-int main(int argc, char **argv) {
+
+#if defined(BUILD_MONOLITHIC)
+#define main(cnt, arr)      zlib_switchlevels_main(cnt, arr)
+#endif
+
+int main(int argc, const char** argv)
+{
     int ret = EXIT_FAILURE;
     int err = 0;
     int size = 0;

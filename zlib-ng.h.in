@@ -45,10 +45,14 @@ extern "C" {
 #endif
 
 #define ZLIBNG_VERSION "2.1.0.devel"
+#define ZLIBNG_VERNUM 0x02010000L   /* MMNNRRMS: major minor revision status modified */
 #define ZLIBNG_VER_MAJOR 2
 #define ZLIBNG_VER_MINOR 1
 #define ZLIBNG_VER_REVISION 0
-#define ZLIBNG_VER_SUBREVISION d
+#define ZLIBNG_VER_STATUS 0         /* 0=devel, 1-E=beta, F=Release */
+#define ZLIBNG_VER_MODIFIED 0       /* non-zero if modified externally from zlib-ng */
+
+#define WITH_GZFILEOP 1
 
 /*
     The 'zlib' compression library provides in-memory compression and
@@ -210,10 +214,8 @@ typedef zng_gz_header *zng_gz_headerp;
 
                         /* basic functions */
 
-#if defined(_MSC_VER)
 Z_EXTERN Z_EXPORT
 void zng_lib_init(void);
-#endif
 
 
 Z_EXTERN Z_EXPORT
@@ -729,7 +731,7 @@ int32_t zng_deflateParams(zng_stream *strm, int32_t level, int32_t strategy);
    Then no more input data should be provided before the deflateParams() call.
    If this is done, the old level and strategy will be applied to the data
    compressed before deflateParams(), and the new level and strategy will be
-   applied to the the data compressed after deflateParams().
+   applied to the data compressed after deflateParams().
 
      deflateParams returns Z_OK on success, Z_STREAM_ERROR if the source stream
    state was inconsistent or if a parameter was invalid, or Z_BUF_ERROR if
@@ -928,7 +930,7 @@ int32_t zng_inflateSync(zng_stream *strm);
      inflateSync returns Z_OK if a possible full flush point has been found,
    Z_BUF_ERROR if no more input was provided, Z_DATA_ERROR if no flush point
    has been found, or Z_STREAM_ERROR if the stream structure was inconsistent.
-   In the success case, the application may save the current current value of
+   In the success case, the application may save the current value of
    total_in which indicates where valid compressed data was found.  In the
    error case, the application may repeatedly call inflateSync, providing more
    input each time, until success or end of the input data.
@@ -1804,13 +1806,13 @@ Z_EXTERN Z_EXPORT int32_t zng_inflateInit2_(zng_stream *strm, int32_t  windowBit
 Z_EXTERN Z_EXPORT int32_t zng_inflateBackInit_(zng_stream *strm, int32_t windowBits, uint8_t *window,
                                          const char *version, int32_t stream_size);
 
-#define zng_deflateInit(strm, level) zng_deflateInit_((strm), (level), ZLIBNG_VERSION, (int32_t)sizeof(zng_stream))
-#define zng_inflateInit(strm) zng_inflateInit_((strm), ZLIBNG_VERSION, (int32_t)sizeof(zng_stream))
-#define zng_deflateInit2(strm, level, method, windowBits, memLevel, strategy) \
+#define @ZLIB_SYMBOL_PREFIX@zng_deflateInit(strm, level) zng_deflateInit_((strm), (level), ZLIBNG_VERSION, (int32_t)sizeof(zng_stream))
+#define @ZLIB_SYMBOL_PREFIX@zng_inflateInit(strm) zng_inflateInit_((strm), ZLIBNG_VERSION, (int32_t)sizeof(zng_stream))
+#define @ZLIB_SYMBOL_PREFIX@zng_deflateInit2(strm, level, method, windowBits, memLevel, strategy) \
         zng_deflateInit2_((strm), (level), (method), (windowBits), (memLevel), \
                      (strategy), ZLIBNG_VERSION, (int32_t)sizeof(zng_stream))
-#define zng_inflateInit2(strm, windowBits) zng_inflateInit2_((strm), (windowBits), ZLIBNG_VERSION, (int32_t)sizeof(zng_stream))
-#define zng_inflateBackInit(strm, windowBits, window) \
+#define @ZLIB_SYMBOL_PREFIX@zng_inflateInit2(strm, windowBits) zng_inflateInit2_((strm), (windowBits), ZLIBNG_VERSION, (int32_t)sizeof(zng_stream))
+#define @ZLIB_SYMBOL_PREFIX@zng_inflateBackInit(strm, windowBits, window) \
                         zng_inflateBackInit_((strm), (windowBits), (window), ZLIBNG_VERSION, (int32_t)sizeof(zng_stream))
 
 #ifdef WITH_GZFILEOP
@@ -1828,7 +1830,7 @@ struct gzFile_s {
     z_off64_t pos;
 };
 Z_EXTERN Z_EXPORT int32_t zng_gzgetc_(gzFile file);  /* backward compatibility */
-#  define zng_gzgetc(g) ((g)->have ? ((g)->have--, (g)->pos++, *((g)->next)++) : (zng_gzgetc)(g))
+#  define @ZLIB_SYMBOL_PREFIX@zng_gzgetc(g) ((g)->have ? ((g)->have--, (g)->pos++, *((g)->next)++) : (@ZLIB_SYMBOL_PREFIX@zng_gzgetc)(g))
 
 #endif /* WITH_GZFILEOP */
 

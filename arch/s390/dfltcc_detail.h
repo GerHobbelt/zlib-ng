@@ -2,6 +2,9 @@
 #include <stdint.h>
 #include <stdio.h>
 
+
+#ifndef _MSC_VER  // TODO: make this a proper check; now it's only a quick hack
+
 #ifdef HAVE_SYS_SDT_H
 #include <sys/sdt.h>
 #endif
@@ -197,3 +200,5 @@ struct dfltcc_state {
 #define ALIGN_UP(p, size) (__typeof__(p))(((uintptr_t)(p) + ((size) - 1)) & ~((size) - 1))
 
 #define GET_DFLTCC_STATE(state) ((struct dfltcc_state *)((char *)(state) + ALIGN_UP(sizeof(*state), 8)))
+
+#endif

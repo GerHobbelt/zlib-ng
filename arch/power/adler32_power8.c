@@ -36,11 +36,13 @@
  * https://www.ietf.org/rfc/rfc1950.txt
  */
 
+#include "zbuild.h"
+#include "zutil.h"
+
 #ifdef POWER8_VSX_ADLER32
 
 #include <altivec.h>
-#include "zbuild.h"
-#include "zutil.h"
+
 #include "adler32_p.h"
 
 /* Vector across sum unsigned int (saturate).  */
@@ -147,7 +149,7 @@ uint32_t adler32_power8(uint32_t adler, const unsigned char* buf, size_t len) {
     s1 = vs1[0] % BASE;
     s2 = vs2[0] % BASE;
 
-    /* Process tail (len < 16).and return  */
+    /* Process tail (len < 16).  */
     return adler32_len_16(s1, buf, len, s2);
 }
 

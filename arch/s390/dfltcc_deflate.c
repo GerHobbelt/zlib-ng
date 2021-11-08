@@ -13,10 +13,13 @@
         $ make
 */
 
-#include "../../zbuild.h"
-#include "../../zutil.h"
-#include "../../deflate.h"
-#include "../../trees_emit.h"
+#include "zbuild.h"
+#include "zutil.h"
+#include "deflate.h"
+#include "trees_emit.h"
+
+#ifndef _MSC_VER  // TODO: make this a proper check; now it's only a quick hack
+
 #include "dfltcc_deflate.h"
 #include "dfltcc_detail.h"
 
@@ -210,7 +213,7 @@ again:
         *strm->next_out = (unsigned char)state->bi_buf;
     /* Honor history and check value */
     param->nt = 0;
-    param->cv = state->wrap == 2 ? ZSWAP32(strm->adler) : strm->adler;
+    param->cv = state->wrap == 2 ? ZSWAP32(state->crc_fold.value) : strm->adler;
 
     /* When opening a block, choose a Huffman-Table Type */
     if (!param->bcf) {
@@ -241,7 +244,10 @@ again:
         state->bi_buf = 0; /* Avoid accessing next_out */
     else
         state->bi_buf = *strm->next_out & ((1 << state->bi_valid) - 1);
-    strm->adler = state->wrap == 2 ? ZSWAP32(param->cv) : param->cv;
+    if (state->wrap == 2)
+        state->crc_fold.value = ZSWAP32(param->cv);
+    else
+        strm->adler = param->cv;
 
     /* Unmask the input data */
     strm->avail_in += masked_avail_in;
@@ -404,3 +410,5 @@ int Z_INTERNAL dfltcc_deflate_get_dictionary(PREFIX3(streamp) strm, unsigned cha
         *dict_length = param->hl;
     return Z_OK;
 }
+
+#endif

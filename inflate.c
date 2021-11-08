@@ -147,10 +147,12 @@ int32_t Z_EXPORT PREFIX(inflateInit2_)(PREFIX3(stream) *strm, int32_t windowBits
     if (state == NULL)
         return Z_MEM_ERROR;
     Tracev((stderr, "inflate: allocated\n"));
+	memset(state, 0, sizeof(*state));
     strm->state = (struct internal_state *)state;
     state->strm = strm;
     state->window = NULL;
     state->mode = HEAD;     /* to pass state test in inflateReset2() */
+    state->check = 1L;      /* 1L is the result of adler32() zero length data */
     state->chunksize = functable.chunksize();
     ret = PREFIX(inflateReset2)(strm, windowBits);
     if (ret != Z_OK) {
@@ -404,7 +406,7 @@ int32_t Z_EXPORT PREFIX(inflate)(PREFIX3(stream) *strm, int32_t flush) {
             if ((state->wrap & 2) && hold == 0x8b1f) {  /* gzip header */
                 if (state->wbits == 0)
                     state->wbits = 15;
-                state->check = PREFIX(crc32)(0L, NULL, 0);
+                state->check = CRC32_INITIAL_VALUE;
                 CRC2(state->check, hold);
                 INITBITS();
                 state->mode = FLAGS;
@@ -572,7 +574,7 @@ int32_t Z_EXPORT PREFIX(inflate)(PREFIX3(stream) *strm, int32_t flush) {
                 state->head->hcrc = (int)((state->flags >> 9) & 1);
                 state->head->done = 1;
             }
-            strm->adler = state->check = PREFIX(crc32)(0L, NULL, 0);
+            strm->adler = state->check = CRC32_INITIAL_VALUE;
             state->mode = TYPE;
             break;
 #endif
@@ -651,8 +653,8 @@ int32_t Z_EXPORT PREFIX(inflate)(PREFIX3(stream) *strm, int32_t flush) {
             /* copy stored block from input to output */
             copy = state->length;
             if (copy) {
-                if (copy > have) copy = have;
-                if (copy > left) copy = left;
+                copy = MIN(copy, have);
+                copy = MIN(copy, left);
                 if (copy == 0) goto inf_leave;
                 memcpy(put, next, copy);
                 have -= copy;
@@ -922,10 +924,8 @@ int32_t Z_EXPORT PREFIX(inflate)(PREFIX3(stream) *strm, int32_t flush) {
 #ifdef INFLATE_ALLOW_INVALID_DISTANCE_TOOFAR_ARRR
                     Trace((stderr, "inflate.c too far\n"));
                     copy -= state->whave;
-                    if (copy > state->length)
-                        copy = state->length;
-                    if (copy > left)
-                        copy = left;
+                    copy = MIN(copy, state->length);
+                    copy = MIN(copy, left);
                     left -= copy;
                     state->length -= copy;
                     do {
@@ -942,16 +942,12 @@ int32_t Z_EXPORT PREFIX(inflate)(PREFIX3(stream) *strm, int32_t flush) {
                 } else {
                     from = state->window + (state->wnext - copy);
                 }
-                if (copy > state->length)
-                    copy = state->length;
-                if (copy > left)
-                    copy = left;
+                copy = MIN(copy, state->length);
+                copy = MIN(copy, left);
 
                 put = functable.chunkcopy_safe(put, from, copy, put + left);
             } else {                             /* copy from output */
-                copy = state->length;
-                if (copy > left)
-                    copy = left;
+                copy = MIN(state->length, left);
 
                 put = functable.chunkmemset_safe(put, state->offset, copy, left);
             }
@@ -1206,8 +1202,8 @@ int32_t Z_EXPORT PREFIX(inflateSync)(PREFIX3(stream) *strm) {
     in = strm->total_in;
     out = strm->total_out;
     PREFIX(inflateReset)(strm);
-    strm->total_in = in;
-    strm->total_out = out;
+    strm->total_in = (z_size_t)in;
+    strm->total_out = (z_size_t)out;
     state->flags = flags;
     state->mode = TYPE;
     return Z_OK;
@@ -1246,6 +1242,7 @@ int32_t Z_EXPORT PREFIX(inflateCopy)(PREFIX3(stream) *dest, PREFIX3(stream) *sou
     copy = (struct inflate_state *)ZALLOC_STATE(source, 1, sizeof(struct inflate_state));
     if (copy == NULL)
         return Z_MEM_ERROR;
+	memset(copy, 0, sizeof(*copy));
     window = NULL;
     if (state->window != NULL) {
         window = (unsigned char *)ZALLOC_WINDOW(source, 1U << state->wbits, sizeof(unsigned char));
@@ -1283,7 +1280,7 @@ int32_t Z_EXPORT PREFIX(inflateUndermine)(PREFIX3(stream) *strm, int32_t subvert
     state->sane = !subvert;
     return Z_OK;
 #else
-    (void)subvert;
+    Z_UNUSED(subvert);
     state->sane = 1;
     return Z_DATA_ERROR;
 #endif

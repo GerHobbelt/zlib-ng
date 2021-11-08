@@ -88,7 +88,7 @@
 /* default i/o buffer size -- double this for output when reading (this and
    twice this must be able to fit in an unsigned type) */
 #ifndef GZBUFSIZE
-#  define GZBUFSIZE 8192
+#  define GZBUFSIZE 131072
 #endif
 
 /* gzip modes, also provide a little integrity check on the passed structure */
@@ -104,11 +104,13 @@
 
 /* internal gzip file state data structure */
 typedef struct {
+#ifdef WITH_GZFILEOP
         /* exposed contents for gzgetc() macro */
     struct gzFile_s x;      /* "x" for exposed */
                             /* x.have: number of bytes available at x.next */
                             /* x.next: next output data to deliver or write */
                             /* x.pos: current position in uncompressed data */
+#endif
         /* used for both reading and writing */
     int mode;               /* see gzip modes above */
     int fd;                 /* file descriptor */

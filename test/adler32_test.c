@@ -355,7 +355,13 @@ static const adler32_test tests[] = {
 
 static const int test_size = sizeof(tests) / sizeof(tests[0]);
 
-int main(void) {
+
+#if defined(BUILD_MONOLITHIC)
+#define main(void)      zlib_adler32_test_main(void)
+#endif
+
+int main(void)
+{
     int i;
     for (i = 0; i < test_size; i++) {
         test_adler32(tests[i].adler, tests[i].buf, tests[i].len, tests[i].expect, tests[i].line);

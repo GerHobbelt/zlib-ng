@@ -7,6 +7,8 @@
 #include "zutil_p.h"
 #include "gzguts.h"
 
+#ifdef WITH_GZFILEOP
+
 #if defined(_WIN32)
 #  define LSEEK _lseeki64
 #else
@@ -57,6 +59,7 @@ static gzFile gz_open(const void *path, int fd, const char *mode) {
     state = (gz_state *)zng_alloc(sizeof(gz_state));
     if (state == NULL)
         return NULL;
+	memset(state, 0, sizeof(*state));
     state->size = 0;            /* no buffers allocated yet */
     state->want = GZBUFSIZE;    /* requested buffer size */
     state->msg = NULL;          /* no error message yet */
@@ -540,4 +543,6 @@ unsigned Z_INTERNAL gz_intmax() {
     } while (p > q);
     return q >> 1;
 }
+#endif
+
 #endif
